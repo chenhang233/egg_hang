@@ -13,7 +13,7 @@ module.exports = (app) => {
   app.on('response', (ctx) => {
     // ctx.starttime is set by framework
     const used = Date.now() - ctx.starttime
-    console.log(used, 'used')
+    console.log(used, 'used time')
     // log total cost
   })
 }
