@@ -39,8 +39,44 @@ class IndexController extends Controller {
     }
     const prevData = await ctx.service.sql.selectByName('adminuser', username)
     if (!prevData) return (ctx.body = error(204))
+    const infoData = await ctx.service.sql.selectByUUID(
+      'adminuserinfo',
+      prevData.uuid
+    )
+    const cannotKeys = ['id', 'uuid', 'roleId', 'routerId', 'routerFnId']
+    const userinfo = { ...prevData, ...infoData }
+    const menus = await ctx.service.sql.selectByUUID(
+      'adminuserrole',
+      userinfo.roleId
+    )
+    const routerKeysArr = menus.routerId.split(',')
+    // routerKeysArr.forEach(async (id) => {
+    let routeArr = await ctx.service.sql.selectByRouterFind(
+      'adminuserrouter',
+      routerKeysArr
+    )
+    // })
+    for (let k in userinfo) {
+      if (cannotKeys.includes(k)) delete userinfo[k]
+      if (k === 'account') {
+        userinfo['username'] = userinfo[k]
+        delete userinfo[k]
+      }
+    }
+    for (let k in menus) {
+      if (cannotKeys.includes(k)) delete menus[k]
+    }
+    for (let obj of routeArr) {
+      for (let j in obj) {
+        if (cannotKeys.includes(j)) delete obj[j]
+      }
+    }
+    // console.log(menus, 'menus')
 
-    return
+    return (ctx.body = {
+      userinfo: userinfo,
+      menu: { menuInfo: menus, router: routeArr },
+    })
   }
 }
 

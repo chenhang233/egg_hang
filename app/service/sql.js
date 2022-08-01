@@ -9,6 +9,14 @@ class SqlService extends Service {
     const data = this.app.mysql.get(table, { account })
     return data
   }
+  async selectByUUID(table, uuid) {
+    const data = this.app.mysql.get(table, { uuid })
+    return data
+  }
+  async selectByRouterFind(table, routerFnId) {
+    const data = this.app.mysql.select(table, { routerFnId })
+    return data
+  }
   //   async insert
 }
 
