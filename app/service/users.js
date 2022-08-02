@@ -21,6 +21,10 @@ class UsersService extends Service {
     const data = await this.app.mysql.insert(table, info)
     return data
   }
+  // async insertLoginAction(table, info) {
+  //   const data = await this.app.mysql.insert(table, info)
+  //   return data
+  // }
 }
 
 module.exports = UsersService

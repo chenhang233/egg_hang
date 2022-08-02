@@ -1,8 +1,13 @@
 const { Service } = require('egg')
+const { admin } = require('../../config/config.static')
 
 class SqlService extends Service {
   async selectAll(table) {
     const data = await this.app.mysql.select(table)
+    return data
+  }
+  async selectByEveryName(table, obj) {
+    const data = await this.app.mysql.select(table, { where: obj })
     return data
   }
   async selectByName(table, account) {
@@ -16,10 +21,9 @@ class SqlService extends Service {
   async selectByRouterFind(table, routerKey) {
     const arr = []
     routerKey.forEach((key) => {
-      const data =
-        key === 'all'
-          ? this.app.mysql.select(table)
-          : this.app.mysql.select(table, { where: { routerFnId: key } })
+      const data = admin.includes(key)
+        ? this.app.mysql.select(table)
+        : this.app.mysql.select(table, { where: { routerFnId: key } })
       arr.push(data)
     })
     return Promise.all(arr)
