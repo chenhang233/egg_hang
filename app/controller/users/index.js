@@ -14,7 +14,12 @@ class IndexController extends Controller {
     const uuid = UUID(password)
     const conn = await ctx.app.mysql.beginTransaction()
     try {
-      await conn.insert('adminuser', { uuid, account: username, password })
+      await conn.insert('adminuser', {
+        uuid,
+        account: username,
+        password,
+        roleId: 1,
+      })
       await conn.insert('adminuserinfo', {
         uuid,
         avatar:
@@ -71,12 +76,16 @@ class IndexController extends Controller {
         if (cannotKeys.includes(j)) delete obj[j]
       }
     }
-    // console.log(menus, 'menus')
-
-    return (ctx.body = {
+    const token = ctx.service.users.setToken(userinfo)
+    await ctx.service.users.insertLoginAction('logininfo', {
+      uuid: prevData.uuid,
+      loginTime: Date.now(),
+    })
+    return (ctx.body = success(200, {
       userinfo: userinfo,
       menu: { menuInfo: menus, router: routeArr },
-    })
+      token,
+    }))
   }
 }
 

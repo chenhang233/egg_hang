@@ -13,9 +13,28 @@ class SqlService extends Service {
     const data = this.app.mysql.get(table, { uuid })
     return data
   }
-  async selectByRouterFind(table, routerFnId) {
-    const data = this.app.mysql.select(table, { routerFnId })
-    return data
+  async selectByRouterFind(table, routerKey) {
+    const arr = []
+    routerKey.forEach((key) => {
+      const data =
+        key === 'all'
+          ? this.app.mysql.select(table)
+          : this.app.mysql.select(table, { where: { routerFnId: key } })
+      arr.push(data)
+    })
+    return Promise.all(arr)
+      .then((res) => {
+        return res.flat()
+      })
+      .catch((e) => {
+        this.logger.warn('sql promise all', e)
+      })
+  }
+  async selectByUUIDFindUsername(uuid) {
+    const data = await this.app.mysql.get('adminuser', {
+      uuid,
+    })
+    return data.account
   }
   //   async insert
 }

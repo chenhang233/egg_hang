@@ -25,15 +25,23 @@ module.exports = (appInfo) => {
     xframe: {
       enable: false,
     },
+    // domainWhiteList: ['*'],
   }
+  // cors 跨域
   config.cors = {
     allowMethods: 'GET,HEAD,PUT,POST,DELETE,PATCH,OPTIONS',
     credentials: true,
     origin: '*', // 允许的请求来源（* 表示允许所有的IP的请求 ）
   }
+  // token
+  config.jwt = {
+    secret: '_1659331422753_9166', //自定义 token 的加密条件字符串
+  }
   // add your middleware config here
-  config.middleware = []
-
+  config.middleware = ['auth']
+  config.auth = {
+    whilteList_role: 'all',
+  }
   // add your user config here
   const userConfig = {
     // myAppName: 'egg',
