@@ -40,7 +40,20 @@ class SqlService extends Service {
     })
     return data.account
   }
-  //   async insert
+  transformObj(obj, ...omit) {
+    omit.forEach((prop) => {
+      if (obj[prop]) {
+        delete obj[prop]
+      }
+    })
+    return obj
+  }
+  transMap(arr, authArr) {
+    return arr.map((obj) => {
+      const o = { ...obj, auth: authArr ? authArr.includes(obj.uuid) : true }
+      return this.transformObj(o, 'id')
+    })
+  }
 }
 
 module.exports = SqlService

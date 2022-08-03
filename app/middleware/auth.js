@@ -6,13 +6,12 @@
 
 const { error } = require('../utils')
 const { admin } = require('../../config/config.static')
-
 module.exports = (options) => {
-  const whiteList = ['/users/login', '/users/register']
+  const { whiteurlList } = options
   return async function (ctx, next) {
     let token = ctx.headers.authorization
     const url = ctx.url
-    if (whiteList.includes(url)) return await next()
+    if (whiteurlList.includes(url)) return await next()
     if (!token) return (ctx.body = error(209))
     if (!token.startsWith('Bearer ')) return (ctx.body = error(209))
     token = token.substring(7)
@@ -26,19 +25,23 @@ module.exports = (options) => {
       const roleArr = await ctx.service.sql.selectByEveryName('adminuserrole', {
         uuid: userinfo.roleId,
       })
+      if (admin.includes(roleArr[0].routerId)) {
+        return await next(options)
+      }
+      const interfaceArr = await ctx.service.roles.selectRoleVisitInterface()
+      const authObj = interfaceArr.find((v) => v.url === url)
       roleArr.forEach((role) => {
-        if (admin.includes(role.routerId)) {
+        const canArr = role.interfaceId.split(',')
+        if (canArr.includes(authObj.uuid)) {
           flag = true
         }
       })
       if (flag) {
-        return await next()
+        return await next(options)
       }
-      //   roleArr.forEach(role => {
-      //     role.routerId
-      //   })
-      console.log(flag, '先不管')
-      await next()
+      console.log(flag, url, '没有当前接口权限')
+      ctx.status = 401
+      return (ctx.body = error(509))
     } else {
       ctx.body = error(207)
     }

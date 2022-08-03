@@ -40,7 +40,8 @@ module.exports = (appInfo) => {
   // add your middleware config here
   config.middleware = ['auth']
   config.auth = {
-    whilteList_role: 'all',
+    admin: ['all'],
+    whiteurlList: ['/users/login', '/users/register'],
   }
   // add your user config here
   const userConfig = {

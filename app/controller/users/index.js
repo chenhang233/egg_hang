@@ -1,5 +1,6 @@
 const { Controller } = require('egg')
 const { error, UUID, success } = require('../../utils/index')
+const { admin } = require('../../../config/config.static')
 class IndexController extends Controller {
   async index() {}
   async register() {
@@ -48,19 +49,31 @@ class IndexController extends Controller {
       'adminuserinfo',
       prevData.uuid
     )
-    const cannotKeys = ['id', 'uuid', 'roleId', 'routerId', 'routerFnId']
+    const cannotKeys = [
+      'id',
+      'uuid',
+      'roleId',
+      'routerId',
+      'routerFnId',
+      'interfaceId',
+    ]
     const userinfo = { ...prevData, ...infoData }
     const menus = await ctx.service.sql.selectByUUID(
       'adminuserrole',
       userinfo.roleId
     )
-    const routerKeysArr = menus.routerId.split(',')
-    // routerKeysArr.forEach(async (id) => {
-    let routeArr = await ctx.service.sql.selectByRouterFind(
-      'adminuserrouter',
-      routerKeysArr
-    )
-    // })
+    if (!menus) return (ctx.body = error(505))
+    const routerKeysArr = menus.routerId ? menus.routerId.split(',') : [0]
+    let routeArr = await ctx.service.sql.selectAll('adminuserrouter')
+    if (admin.includes(routerKeysArr[0])) {
+      routeArr.forEach((obj) => (obj.auth = true))
+    } else {
+      routeArr.forEach(
+        (obj) => (obj.auth = routerKeysArr.includes(obj.routerFnId))
+      )
+    }
+
+    // console.log(routeArr, 'routeArr')
     for (let k in userinfo) {
       if (cannotKeys.includes(k)) delete userinfo[k]
       if (k === 'account') {
