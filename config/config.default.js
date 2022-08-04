@@ -11,6 +11,20 @@ module.exports = (appInfo) => {
    * @type {Egg.EggAppConfig}
    **/
   const config = (exports = {})
+  // websocket
+  config.io = {
+    init: {}, // passed to engine.io
+    namespace: {
+      '/': {
+        connectionMiddleware: ['connection'],
+        packetMiddleware: [], // 针对消息的处理暂时不实现
+      },
+      // '/example': {
+      //   connectionMiddleware: [],
+      //   packetMiddleware: [],
+      // },
+    },
+  }
   // 添加 view 配置
   config.view = {
     defaultViewEngine: 'nunjucks',
@@ -41,7 +55,7 @@ module.exports = (appInfo) => {
   config.middleware = ['auth']
   config.auth = {
     admin: ['all'],
-    whiteurlList: ['/users/login', '/users/register'],
+    whiteurlList: ['/users/login', '/users/register', '/users/getToken'],
   }
   // add your user config here
   const userConfig = {

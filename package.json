@@ -12,6 +12,7 @@
     "egg-jwt": "^3.1.7",
     "egg-mysql": "^3.1.1",
     "egg-scripts": "^2",
+    "egg-socket.io": "^4.1.6",
     "egg-view-nunjucks": "^2.3.0",
     "moment": "^2.29.4"
   },
@@ -26,9 +27,9 @@
     "node": ">=16.0.0"
   },
   "scripts": {
-    "start": "egg-scripts start --daemon --title=egg-server-egg_hang",
+    "start": "egg-scripts start --daemon --title=egg-server-egg_hang --sticky",
     "stop": "egg-scripts stop --title=egg-server-egg_hang",
-    "dev": "egg-bin dev",
+    "dev": "egg-bin dev --sticky",
     "debug": "egg-bin debug",
     "test": "npm run lint -- --fix && npm run test-local",
     "test-local": "egg-bin test",

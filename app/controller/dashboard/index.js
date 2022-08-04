@@ -30,6 +30,17 @@ class DashboardController extends Controller {
     // set.forEach((v) => setArr.push(v))
     // let username = await ctx.service.sql.selectByUUIDFindUsername(setArr)
   }
+  async getWebStudy() {
+    const ctx = this.ctx
+    // https://www.apifox.cn/apidoc/project-1355504/doc-1144392
+    const result = await ctx.curl('https://zhblogs.ohyee.cc/api/charts/arch', {
+      dataType: 'json',
+    })
+    if (result.status === 200) {
+      return (ctx.body = success(200, result.data.data))
+    }
+    ctx.body = error(505)
+  }
 }
 
 module.exports = DashboardController

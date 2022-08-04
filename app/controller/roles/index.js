@@ -11,10 +11,10 @@ class RolesController extends Controller {
       const canInterface = v.interfaceId.split(',')
       const canRouter = v.routerId.split(',')
       if (admin.includes(canInterface[0]) && admin.includes(canRouter[0])) {
-        v.buttonArr = ctx.service.sql.transMap(interfaceArr)
+        v.interfaceArr = ctx.service.sql.transMap(interfaceArr)
         v.routerArr = ctx.service.sql.transMap(routeArr)
       } else {
-        v.buttonArr = ctx.service.sql.transMap(interfaceArr, canInterface)
+        v.interfaceArr = ctx.service.sql.transMap(interfaceArr, canInterface)
         v.routerArr = ctx.service.sql.transMap(routeArr, canRouter)
       }
       delete v.uuid

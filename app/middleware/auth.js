@@ -16,7 +16,8 @@ module.exports = (options) => {
     if (!token.startsWith('Bearer ')) return (ctx.body = error(209))
     token = token.substring(7)
     // console.log('中间件执行,auth', token, url)
-    const { username } = ctx.service.users.verifyToken(token)
+    const { username, details } = ctx.service.users.verifyToken(token)
+    if (details && details.Refresh) return (ctx.body = error(215))
     console.log('权限中心, 当前登录人是:', username)
     console.log('权限中心, 当前请求url:', url)
     if (username) {
@@ -30,6 +31,7 @@ module.exports = (options) => {
       }
       const interfaceArr = await ctx.service.roles.selectRoleVisitInterface()
       const authObj = interfaceArr.find((v) => v.url === url)
+      if (!authObj) return (ctx.body = error(510))
       roleArr.forEach((role) => {
         const canArr = role.interfaceId.split(',')
         if (canArr.includes(authObj.uuid)) {
@@ -37,13 +39,13 @@ module.exports = (options) => {
         }
       })
       if (flag) {
-        return await next(options)
+        return await next()
       }
       console.log(flag, url, '没有当前接口权限')
       ctx.status = 401
       return (ctx.body = error(509))
     } else {
-      ctx.body = error(207)
+      return (ctx.body = error(207))
     }
   }
 }

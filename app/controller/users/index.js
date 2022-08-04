@@ -90,6 +90,7 @@ class IndexController extends Controller {
       }
     }
     const token = ctx.service.users.setToken(userinfo)
+    const refreshToken = ctx.service.users.setRefreshToken(userinfo)
     await ctx.service.users.insertLoginAction('logininfo', {
       uuid: prevData.uuid,
       loginTime: Date.now(),
@@ -98,7 +99,19 @@ class IndexController extends Controller {
       userinfo: userinfo,
       menu: { menuInfo: menus, router: routeArr },
       token,
+      refreshToken,
     }))
+  }
+  async getToken() {
+    const ctx = this.ctx
+    let { refreshToken } = ctx.request.body
+    if (!refreshToken) return (ctx.body = error(215))
+    if (!refreshToken.startsWith('Bearer ')) return (ctx.body = error(209))
+    refreshToken = refreshToken.substring(7)
+    const { details } = ctx.service.users.verifyToken(refreshToken)
+    if (!details.Refresh) return (ctx.body = error(215))
+    const token = ctx.service.users.setToken(details)
+    return (ctx.body = success(200, { token }))
   }
 }
 

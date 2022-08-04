@@ -8,10 +8,20 @@ class UsersService extends Service {
     })
     return token
   }
+  setRefreshToken(info) {
+    const token = this.app.jwt.sign(
+      { info, Refresh: true },
+      this.app.config.jwt.secret,
+      {
+        expiresIn: '3h',
+      }
+    )
+    return token
+  }
   verifyToken(token) {
     try {
       const info = this.app.jwt.verify(token, this.config.jwt.secret)
-      return { username: info.info.username, pastTime: info.exp }
+      return { username: info.info.username, pastTime: info.exp, details: info }
     } catch (e) {
       this.ctx.status = 401
       return (this.ctx.body = error(208))

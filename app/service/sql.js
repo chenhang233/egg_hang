@@ -18,6 +18,10 @@ class SqlService extends Service {
     const data = this.app.mysql.get(table, { uuid })
     return data
   }
+  async selectById(table, id) {
+    const data = this.app.mysql.get(table, { id })
+    return data
+  }
   async selectByRouterFind(table, routerKey) {
     const arr = []
     routerKey.forEach((key) => {
