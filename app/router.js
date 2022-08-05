@@ -5,7 +5,6 @@
  */
 module.exports = (app) => {
   const { router, controller, io } = app
-  console.log(io, 'io')
   router.get('/', controller.home.index)
   // socket.io
   io.of('/').route('exchange', io.controller.nsp.exchange)
@@ -16,6 +15,9 @@ module.exports = (app) => {
   router.get('/dashboard/getWebStudy', controller.dashboard.index.getWebStudy)
   router.post('/users/register', controller.users.index.register)
   router.post('/users/login', controller.users.index.login)
+  router.post('/users/getUserInfo', controller.users.index.getUserInfo)
+  router.post('/users/setUserInfo', controller.users.index.setUserInfo)
+  router.post('/users/uploadAvatar', controller.users.index.uploadAvatar)
   router.post('/users/getToken', controller.users.index.getToken)
   router.post('/roles/read', controller.roles.index.readRole)
   router.post('/roles/add', controller.roles.index.addRole)

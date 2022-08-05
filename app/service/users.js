@@ -31,6 +31,12 @@ class UsersService extends Service {
     const data = await this.app.mysql.insert(table, info)
     return data
   }
+  async updateUserInfo(table, obj) {
+    const res = await this.app.mysql.update(table, obj, {
+      where: { uuid: obj.uuid },
+    })
+    if (res.affectedRows === 0) return (this.ctx.body = error(507))
+  }
   // async insertLoginAction(table, info) {
   //   const data = await this.app.mysql.insert(table, info)
   //   return data

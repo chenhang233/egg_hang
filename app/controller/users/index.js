@@ -1,6 +1,8 @@
 const { Controller } = require('egg')
 const { error, UUID, success } = require('../../utils/index')
 const { admin } = require('../../../config/config.static')
+const fs = require('fs')
+const path = require('path')
 class IndexController extends Controller {
   async index() {}
   async register() {
@@ -75,7 +77,7 @@ class IndexController extends Controller {
 
     // console.log(routeArr, 'routeArr')
     for (let k in userinfo) {
-      if (cannotKeys.includes(k)) delete userinfo[k]
+      if (cannotKeys.includes(k) && k !== 'id') delete userinfo[k]
       if (k === 'account') {
         userinfo['username'] = userinfo[k]
         delete userinfo[k]
@@ -109,9 +111,92 @@ class IndexController extends Controller {
     if (!refreshToken.startsWith('Bearer ')) return (ctx.body = error(209))
     refreshToken = refreshToken.substring(7)
     const { details } = ctx.service.users.verifyToken(refreshToken)
-    if (!details.Refresh) return (ctx.body = error(215))
+    if (!details || !details.Refresh) return (ctx.body = error(215))
     const token = ctx.service.users.setToken(details)
     return (ctx.body = success(200, { token }))
+  }
+  async getUserInfo() {
+    const ctx = this.ctx
+    const { id } = ctx.request.body
+    if (!id) return (ctx.body = error(201))
+    const adminuser = await ctx.service.sql.selectById('adminuser', id)
+    if (!adminuser) return (ctx.body = error(207))
+    const adminuserinfo = await ctx.service.sql.selectByUUID(
+      'adminuserinfo',
+      adminuser.uuid
+    )
+    delete adminuserinfo.id
+    const userinfo = { ...adminuser, ...adminuserinfo }
+    userinfo.username = userinfo.account
+    if (userinfo.avatar) {
+      const res = fs.readFileSync(userinfo.avatar, 'binary')
+      userinfo.avatar = res
+    }
+    delete userinfo.account
+    const cannotKeys = [
+      'id',
+      'uuid',
+      'roleId',
+      'routerId',
+      'routerFnId',
+      'interfaceId',
+    ]
+    for (let k in userinfo) {
+      if (cannotKeys.includes(k) && k !== 'id') delete userinfo[k]
+    }
+    return (ctx.body = success(200, userinfo))
+  }
+  async setUserInfo() {
+    const ctx = this.ctx
+    const { id } = ctx.request.body
+    //   name,
+    //   sex,
+    //   phone,
+    //   address,
+    //   introduction,
+    //   avatar,
+    if (!id) return (ctx.body = error(201))
+    const adminuser = await ctx.service.sql.selectById('adminuser', id)
+    if (!adminuser) return (ctx.body = error(207))
+    const updateObj = {}
+    for (const key in ctx.request.body) {
+      if (ctx.request.body[key]) {
+        updateObj[key] = ctx.request.body[key]
+      }
+    }
+    updateObj.uuid = adminuser.uuid
+    delete updateObj.id
+    if (updateObj.avatar) return (ctx.body = error(506))
+    const err = await ctx.service.users.updateUserInfo(
+      'adminuserinfo',
+      updateObj
+    )
+    if (err) return (ctx.body = err)
+    return (ctx.body = success(200))
+  }
+  async uploadAvatar() {
+    const ctx = this.ctx
+    const { id, avatar } = ctx.request.body
+    if (!id || !avatar) return (ctx.body = error(201))
+    const adminuser = await ctx.service.sql.selectById('adminuser', id)
+    if (!adminuser) return (ctx.body = error(207))
+    const p = path.join(__dirname + '../../../uploads/') + Date.now()
+    fs.writeFileSync(p, avatar)
+    // this.logger.warn(err, '上传base64 error')
+    const updateObj = {}
+    updateObj.uuid = adminuser.uuid
+    updateObj.avatar = p
+    const data = await ctx.service.sql.selectByUUID(
+      'adminuserinfo',
+      updateObj.uuid
+    )
+    fs.unlinkSync(data.avatar) // 删老的
+    const myerr = await ctx.service.users.updateUserInfo(
+      'adminuserinfo',
+      updateObj
+    )
+    if (myerr) return (ctx.body = myerr)
+    return (ctx.body = success(200))
   }
 }
 
