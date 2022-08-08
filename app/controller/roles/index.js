@@ -28,7 +28,7 @@ class RolesController extends Controller {
     const { roleName, roleMark } = ctx.request.body
     const err = await ctx.service.roles.checkRolenameIsSame(roleName)
     if (err) return (ctx.body = err)
-    const uuid = UUID(Math.random() * 10 + '')
+    const uuid = Date.now()
     try {
       await ctx.app.mysql.insert('adminuserrole', {
         roleName,
@@ -49,9 +49,9 @@ class RolesController extends Controller {
     if (!id) return (ctx.body = error(508))
     const updateObj = {}
     if (body['routerId']) {
-      if (!(body['routerId'] instanceof Array)) {
-        return (ctx.body = error(214))
-      }
+      // if (!(body['routerId'] instanceof Array)) {
+      //   return (ctx.body = error(214))
+      // }
       body['routerId'] = body['routerId'].join(',')
     }
     if (body['interfaceId']) {

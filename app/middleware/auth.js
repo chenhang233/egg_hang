@@ -11,6 +11,7 @@ module.exports = (options) => {
   return async function (ctx, next) {
     let token = ctx.headers.authorization
     const url = ctx.url
+    console.log(ctx.ip, ctx.ips, 'ip')
     if (whiteurlList.includes(url)) return await next()
     if (!token) return (ctx.body = error(209))
     if (!token.startsWith('Bearer ')) return (ctx.body = error(209))

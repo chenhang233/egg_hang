@@ -82,6 +82,11 @@ class IndexController extends Controller {
         userinfo['username'] = userinfo[k]
         delete userinfo[k]
       }
+      if (k === 'avatar' && userinfo.avatar) {
+        const p = path.join(userinfo['avatar'])
+        const avatar = fs.readFileSync(p, 'binary')
+        userinfo['avatar'] = avatar
+      }
     }
     for (let k in menus) {
       if (cannotKeys.includes(k)) delete menus[k]
