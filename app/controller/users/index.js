@@ -47,6 +47,7 @@ class IndexController extends Controller {
     }
     const prevData = await ctx.service.sql.selectByName('adminuser', username)
     if (!prevData) return (ctx.body = error(204))
+    if (prevData.password !== password) return (ctx.body = error(204))
     const infoData = await ctx.service.sql.selectByUUID(
       'adminuserinfo',
       prevData.uuid
@@ -102,6 +103,7 @@ class IndexController extends Controller {
       uuid: prevData.uuid,
       loginTime: Date.now(),
     })
+    console.log('登录成功', userinfo.username)
     return (ctx.body = success(200, {
       userinfo: userinfo,
       menu: { menuInfo: menus, router: routeArr },
