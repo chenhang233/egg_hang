@@ -83,9 +83,8 @@ class IndexController extends Controller {
         userinfo['username'] = userinfo[k]
         delete userinfo[k]
       }
-      if (k === 'avatar' && userinfo.avatar) {
-        const p = path.join(userinfo['avatar'])
-        const avatar = fs.readFileSync(p, 'binary')
+      if (k === 'avatar' && userinfo.avatar && !/^http/.test(userinfo.avatar)) {
+        const avatar = fs.readFileSync(path.join(userinfo['avatar']), 'binary')
         userinfo['avatar'] = avatar
       }
     }
