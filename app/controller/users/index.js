@@ -53,42 +53,7 @@ class IndexController extends Controller {
       prevData.uuid
     )
     // const cannotKeys = ctx.service.users.cannotKeys()
-    const userinfo = { ...prevData, ...infoData }
-    // const menus = await ctx.service.sql.selectByUUID(
-    //   'adminuserrole',
-    //   userinfo.roleId
-    // )
-    // if (!menus) return (ctx.body = error(505))
-    // const routerKeysArr = menus.routerId ? menus.routerId.split(',') : [0]
-    // let routeArr = await ctx.service.sql.selectAll('adminuserrouter')
-    // if (admin.includes(routerKeysArr[0])) {
-    //   routeArr.forEach((obj) => (obj.auth = true))
-    // } else {
-    //   routeArr.forEach(
-    //     (obj) => (obj.auth = routerKeysArr.includes(obj.routerFnId))
-    //   )
-    // }
-
-    // console.log(routeArr, 'routeArr')
-    // for (let k in userinfo) {
-    //   if (cannotKeys.includes(k) && k !== 'id') delete userinfo[k]
-    //   if (k === 'account') {
-    //     userinfo['username'] = userinfo[k]
-    //     delete userinfo[k]
-    //   }
-    //   if (k === 'avatar' && userinfo.avatar && !/^http/.test(userinfo.avatar)) {
-    //     const avatar = fs.readFileSync(path.join(userinfo['avatar']), 'binary')
-    //     userinfo['avatar'] = avatar
-    //   }
-    // }
-    // for (let k in menus) {
-    //   if (cannotKeys.includes(k)) delete menus[k]
-    // }
-    // for (let obj of routeArr) {
-    //   for (let j in obj) {
-    //     if (cannotKeys.includes(j)) delete obj[j]
-    //   }
-    // }
+    const userinfo = { ...prevData, ...infoData, username: username }
     const token = ctx.service.users.setToken(userinfo)
     const refreshToken = ctx.service.users.setRefreshToken(userinfo)
     await ctx.service.users.insertLoginAction('logininfo', {
@@ -103,11 +68,11 @@ class IndexController extends Controller {
   }
   async getUserMenus() {
     const ctx = this.ctx
-    const { uuid } = ctx.request.body
-    if (!uuid) {
+    const UUID = ctx.UUID
+    if (!UUID) {
       return (ctx.body = error(508))
     }
-    const user = await ctx.service.sql.selectByUUID('adminuser', uuid)
+    const user = await ctx.service.sql.selectByUUID('adminuser', UUID)
     const menus = await ctx.service.sql.selectByUUID(
       'adminuserrole',
       user.roleId
@@ -121,7 +86,7 @@ class IndexController extends Controller {
         (obj) => (obj.auth = routerKeysArr.includes(obj.routerFnId))
       )
     }
-    const cannotKeys = ctx.service.users.cannotKeys()
+    const cannotKeys = await ctx.service.users.cannotKeys()
     for (let k in menus) {
       if (cannotKeys.includes(k)) delete menus[k]
     }
@@ -140,9 +105,13 @@ class IndexController extends Controller {
     if (!refreshToken) return (ctx.body = error(215))
     if (!refreshToken.startsWith('Bearer ')) return (ctx.body = error(209))
     refreshToken = refreshToken.substring(7)
-    const { details } = ctx.service.users.verifyToken(refreshToken)
-    if (!details || !details.Refresh) return (ctx.body = error(215))
-    const token = ctx.service.users.setToken(details)
+    const { details, username } = ctx.service.users.verifyToken(refreshToken)
+    if (!username || !details || !details.Refresh)
+      return (ctx.body = error(215))
+    const token = ctx.service.users.setToken({
+      details: details,
+      username: username,
+    })
     return (ctx.body = success(200, { token }))
   }
   async getUserInfo() {

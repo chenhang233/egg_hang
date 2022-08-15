@@ -13,10 +13,10 @@ module.exports = (options) => {
     const url = ctx.url
     console.log(ctx.ip, ctx.ips, 'ip', url, 'url')
     if (whiteurlList.includes(url)) return await next()
-    if (!token) return (ctx.body = error(209))
+    if (!token) return (ctx.body = error(215))
     if (!token.startsWith('Bearer ')) return (ctx.body = error(209))
     token = token.substring(7)
-    // console.log('中间件执行,auth', token, url)
+    console.log('中间件执行,auth', url)
     const { username, details } = ctx.service.users.verifyToken(token)
     if (details && details.Refresh) return (ctx.body = error(215))
     console.log('权限中心, 当前登录人是:', username)
@@ -24,6 +24,7 @@ module.exports = (options) => {
     if (username) {
       let flag = false
       const userinfo = await ctx.service.sql.selectByName('adminuser', username)
+      ctx.UUID = userinfo.uuid
       const roleArr = await ctx.service.sql.selectByEveryName('adminuserrole', {
         uuid: userinfo.roleId,
       })
