@@ -8,16 +8,17 @@ class RolesController extends Controller {
     const interfaceArr = await ctx.service.roles.selectRoleVisitInterface()
     const routeArr = await ctx.service.sql.selectAll('adminuserrouter')
     roles.forEach((v) => {
-      const canInterface = v.interfaceId.split(',')
-      const canRouter = v.routerId.split(',')
-      if (admin.includes(canInterface[0]) && admin.includes(canRouter[0])) {
-        v.interfaceArr = ctx.service.sql.transMap(interfaceArr)
-        v.routerArr = ctx.service.sql.transMap(routeArr)
-      } else {
-        v.interfaceArr = ctx.service.sql.transMap(interfaceArr, canInterface)
-        v.routerArr = ctx.service.sql.transMap(routeArr, canRouter)
-      }
-      delete v.uuid
+      // const canInterface = v.interfaceId.split(',')
+      // const canRouter = v.routerId.split(',')
+      // if (admin.includes(canInterface[0]) && admin.includes(canRouter[0])) {
+      //   v.interfaceArr = ctx.service.sql.transMap(interfaceArr)
+      //   v.routerArr = ctx.service.sql.transMap(routeArr)
+      // } else {
+      //   v.interfaceArr = ctx.service.sql.transMap(interfaceArr, canInterface)
+      //   v.routerArr = ctx.service.sql.transMap(routeArr, canRouter)
+      // }
+      // delete v.uuid
+      delete v.id
       delete v.routerId
       delete v.interfaceId
     })

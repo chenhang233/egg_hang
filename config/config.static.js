@@ -57,5 +57,5 @@ module.exports = {
     'z',
     'y',
   ],
-  admin: ['all'],
+  admin: ['13kl12cd210hi311ij522tu62cd%21st%'],
 }

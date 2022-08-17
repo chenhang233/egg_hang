@@ -54,7 +54,6 @@ module.exports = (appInfo) => {
   // add your middleware config here
   config.middleware = ['auth']
   config.auth = {
-    admin: ['all'],
     whiteurlList: ['/users/login', '/users/register', '/users/getToken'],
   }
   // add your user config here
