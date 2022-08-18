@@ -1,6 +1,5 @@
 const { Controller } = require('egg')
 const { success, error } = require('../../utils')
-const { cnTime } = require('../../extend/moment')
 
 class DashboardController extends Controller {
   async index() {
@@ -12,7 +11,7 @@ class DashboardController extends Controller {
     const info = await ctx.service.sql.selectAll('logininfo')
     const data = info.map(async (obj) => {
       obj.username = await ctx.service.sql.selectByUUIDFindUsername(obj.uuid)
-      obj.loginTime = cnTime(obj.loginTime)
+      obj.loginTime = ctx.helper.cnTime(obj.loginTime)
       delete obj.uuid
       return obj
     })

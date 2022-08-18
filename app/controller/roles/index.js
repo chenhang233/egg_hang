@@ -28,14 +28,15 @@ class RolesController extends Controller {
     const { ctx } = this
     const { roleName, roleMark } = ctx.request.body
     const err = await ctx.service.roles.checkRolenameIsSame(roleName)
+    const RoleArr = await ctx.service.sql.selectAll('adminuserrole')
+    const uuid = RoleArr[RoleArr.length - 1]['uuid'] + 1
     if (err) return (ctx.body = err)
-    const uuid = Date.now()
     try {
       await ctx.app.mysql.insert('adminuserrole', {
         roleName,
         roleMark,
-        uuid,
         routerId: 0,
+        uuid,
       })
     } catch (e) {
       return (ctx.body = error(506))
@@ -73,7 +74,10 @@ class RolesController extends Controller {
   async deleteRole() {
     const { ctx } = this
     const { uuid } = ctx.request.body
-    if (!uuid) return (ctx.body = error(508))
+    if (!uuid.toString()) return (ctx.body = error(508))
+    const removeRole = await ctx.service.sql.selectByUUID('adminuserrole', uuid)
+    console.log(removeRole, 'removeRole')
+    if (admin.includes(removeRole.uuid)) return (ctx.body = error(509))
     const err = await ctx.service.roles.deleteRole('adminuserrole', uuid)
     if (err) return (ctx.body = err)
     return (ctx.body = success(200))

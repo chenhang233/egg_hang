@@ -102,7 +102,7 @@ class IndexController extends Controller {
   async getToken() {
     const ctx = this.ctx
     let { refreshToken } = ctx.request.body
-    if (!refreshToken) return (ctx.body = error(215))
+    if (!refreshToken) return (ctx.body = error(217))
     if (!refreshToken.startsWith('Bearer ')) return (ctx.body = error(209))
     refreshToken = refreshToken.substring(7)
     const { details, username } = ctx.service.users.verifyToken(refreshToken)

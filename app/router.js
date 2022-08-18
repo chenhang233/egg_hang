@@ -25,6 +25,10 @@ module.exports = (app) => {
   router.post('/roles/update', controller.roles.index.updateRole)
   router.post('/roles/delete', controller.roles.index.deleteRole)
   router.post(
+    '/authorization/readAuth',
+    controller.authorization.index.readAuth
+  )
+  router.post(
     '/authorization/addRouter',
     controller.authorization.index.addRouter
   )

@@ -1,5 +1,6 @@
 const { Service } = require('egg')
 const { success, error, UUID } = require('../utils')
+const { admin } = require('../../config/config.static')
 
 class RolesService extends Service {
   async checkRolenameIsSame(roleName) {
@@ -20,6 +21,19 @@ class RolesService extends Service {
   async selectRoleVisitInterface() {
     const res = await this.app.mysql.select('adminuserinterface')
     return res
+  }
+  async selectByAnyFind(table, keyArr) {
+    if (admin.includes(keyArr[0])) {
+      const data = await this.app.mysql.select(table)
+      data.forEach((obj) => (obj.auth = true))
+      return data
+    }
+    const allData = await this.app.mysql.select(table)
+    const data = allData.map((obj) => ({
+      ...obj,
+      auth: keyArr.includes(obj.uuid.toString()),
+    }))
+    return data
   }
   // 抽象更新角色信息    obj   key: 列名称,value: number,
   async addAdminuserrole(id, obj) {
