@@ -107,7 +107,7 @@ class IndexController extends Controller {
     refreshToken = refreshToken.substring(7)
     const { details, username } = ctx.service.users.verifyToken(refreshToken)
     if (!username || !details || !details.Refresh) {
-      return (ctx.body = error(215))
+      return (ctx.body = error(218))
     }
     const token = ctx.service.users.setToken({
       details: details,

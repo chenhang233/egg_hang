@@ -9,12 +9,13 @@ class AuthorizationController extends Controller {
     if (!uuid.toString()) return (ctx.body = error(508))
     if (!condition) return (ctx.body = error(216))
     const role = await ctx.service.sql.selectByUUID('adminuserrole', uuid)
+    console.log(role, 'role')
     switch (condition) {
       case 'R':
         let routerIdArr = []
         admin.includes(role.routerId)
           ? routerIdArr.push(role.routerId)
-          : (routerIdArr = role.routerId.split(','))
+          : (routerIdArr = role.routerId ? role.routerId.split(',') : [])
         const data_1 = await ctx.service.roles.selectByAnyFind(
           'adminuserrouter',
           routerIdArr
@@ -26,7 +27,9 @@ class AuthorizationController extends Controller {
         let interfaceIdArr = []
         admin.includes(role.interfaceId)
           ? interfaceIdArr.push(role.interfaceId)
-          : (interfaceIdArr = role.interfaceId.split(','))
+          : (interfaceIdArr = role.interfaceId
+              ? role.interfaceId.split(',')
+              : [])
         const data_2 = await ctx.service.roles.selectByAnyFind(
           'adminuserinterface',
           interfaceIdArr

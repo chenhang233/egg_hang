@@ -23,12 +23,11 @@ class RolesService extends Service {
     return res
   }
   async selectByAnyFind(table, keyArr) {
-    if (admin.includes(keyArr[0])) {
-      const data = await this.app.mysql.select(table)
-      data.forEach((obj) => (obj.auth = true))
-      return data
-    }
     const allData = await this.app.mysql.select(table)
+    if (admin.includes(keyArr[0])) {
+      allData.forEach((obj) => (obj.auth = true))
+      return allData
+    }
     const data = allData.map((obj) => ({
       ...obj,
       auth: keyArr.includes(obj.uuid.toString()),

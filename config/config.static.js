@@ -20,6 +20,7 @@ module.exports = {
     216: '当前权限已存在,重复添加',
     216: 'condition 不存在',
     217: 'refreshToken 不存在',
+    218: 'refreshToken 过期了',
     505: '内部错误',
     506: '添加错误',
     507: '更新错误',
