@@ -29,17 +29,19 @@ module.exports = (options) => {
         uuid: userinfo.roleId,
       })
       if (admin.includes(roleArr[0].routerId)) {
-        return await next(options)
+        return await next()
       }
       const interfaceArr = await ctx.service.roles.selectRoleVisitInterface()
       const authObj = interfaceArr.find((v) => v.url === url)
       if (!authObj) return (ctx.body = error(510))
-      roleArr.forEach((role) => {
-        const canArr = role.interfaceId.split(',')
-        if (canArr.includes(authObj.uuid)) {
-          flag = true
-        }
-      })
+      const currentRole = roleArr[0]
+      const canArr = currentRole.interfaceId
+        ? currentRole.interfaceId.split(',')
+        : []
+      console.log(canArr, 'canArr', authObj.uuid, 'authObj.uuid')
+      if (canArr.includes(String(authObj.uuid))) {
+        flag = true
+      }
       if (flag) {
         return await next()
       }
