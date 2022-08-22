@@ -3,13 +3,49 @@ const { error, success } = require('../../utils')
 const { admin } = require('../../../config/config.static')
 
 class AuthorizationController extends Controller {
+  async Index(obj) {
+    //  PType(router,interface) params 参数
+    const { PType, params, type } = obj
+    const { uuid, routerId, interfaceId } = params
+    const role = await this.service.sql.selectByUUID('adminuserrole', uuid)
+    if (admin.includes(role.routerId)) return error(511)
+    let p1 = null
+    if (PType === 'router') {
+      p1 = routerId
+    }
+    if (PType === 'interface') {
+      p1 = interfaceId
+    }
+    const errNumer = this.service.roles.checkParamsNumber(uuid, p1)
+    if (errNumer.length > 0) return errNumer[0]
+    if (type === 'add') {
+      const e = await this.service.roles.addAdminuserrole(
+        uuid,
+        {
+          key: PType,
+          value: p1,
+        },
+        PType
+      )
+      if (e) return e
+    } else if (type === 'remove') {
+      const e = await this.service.roles.removeAdminuserrole(
+        uuid,
+        {
+          key: PType,
+          value: p1,
+        },
+        PType
+      )
+      if (e) return e
+    }
+  }
   async readAuth() {
     const ctx = this.ctx
     const { uuid, condition } = ctx.request.body
     if (!uuid.toString()) return (ctx.body = error(508))
-    if (!condition) return (ctx.body = error(216))
+    if (!condition) return (ctx.body = error(220))
     const role = await ctx.service.sql.selectByUUID('adminuserrole', uuid)
-    console.log(role, 'role')
     switch (condition) {
       case 'R':
         let routerIdArr = []
@@ -42,26 +78,42 @@ class AuthorizationController extends Controller {
 
   async addRouter() {
     const ctx = this.ctx
-    const { id, routerId } = ctx.request.body
-    const errNumer = this.service.roles.checkParamsNumber(id, routerId)
-    if (errNumer) return errNumer
-    const errRouter = await this.service.roles.addAdminuserrole(id, {
-      key: 'routerId',
-      value: routerId,
+    const e = await this.Index({
+      PType: 'router',
+      params: ctx.request.body,
+      type: 'add',
     })
-    if (errRouter) return errRouter
+    if (e) return (ctx.body = e)
+    return (ctx.body = success(200))
+  }
+  async removeRouter() {
+    const ctx = this.ctx
+    const e = await this.Index({
+      PType: 'router',
+      params: ctx.request.body,
+      type: 'remove',
+    })
+    if (e) return (ctx.body = e)
     return (ctx.body = success(200))
   }
   async addInterface() {
     const ctx = this.ctx
-    const { id, interfaceId } = ctx.request.body
-    const errNumer = this.service.roles.checkParamsNumber(id, interfaceId)
-    if (errNumer) return errNumer
-    const errInter = await this.service.roles.addAdminuserrole(id, {
-      key: 'interfaceId',
-      value: interfaceId,
+    const e = await this.Index({
+      PType: 'interface',
+      params: ctx.request.body,
+      type: 'add',
     })
-    if (errInter) return errInter
+    if (e) return (ctx.body = e)
+    return (ctx.body = success(200))
+  }
+  async removeInterFace() {
+    const ctx = this.ctx
+    const e = await this.Index({
+      PType: 'interface',
+      params: ctx.request.body,
+      type: 'remove',
+    })
+    if (e) return (ctx.body = e)
     return (ctx.body = success(200))
   }
 }

@@ -11,7 +11,9 @@ class RolesService extends Service {
     if (roles && roles.length > 0) return (this.ctx.body = error(211))
   }
   async updateRole(table, obj) {
-    const res = await this.app.mysql.update(table, obj)
+    const res = await this.app.mysql.update(table, obj, {
+      where: { uuid: obj.uuid },
+    })
     if (res.affectedRows === 0) return (this.ctx.body = error(508))
   }
   async deleteRole(table, uuid) {
@@ -35,24 +37,56 @@ class RolesService extends Service {
     return data
   }
   // 抽象更新角色信息    obj   key: 列名称,value: number,
-  async addAdminuserrole(id, obj) {
-    const role = await this.ctx.service.sql.selectById('adminuserrole', id)
-    const prevArr = role.interfaceId.split(',')
+  async addAdminuserrole(uuid, obj, PType) {
+    const role = await this.ctx.service.sql.selectByUUID('adminuserrole', uuid)
+    let prevArr = []
+    let key = null
+    if (PType === 'interface') {
+      key = 'interfaceId'
+      prevArr = role.interfaceId ? role.interfaceId.split(',') : []
+    } else if (PType === 'router') {
+      key = 'routerId'
+      prevArr = role.routerId ? role.routerId.split(',') : []
+    }
+    if (!key) return error(201)
     if (prevArr.some((v) => +v === obj.value))
       return (this.ctx.body = error(216))
-    prevArr.push(obj.value)
+    prevArr.push(String(obj.value))
     const errRole = await this.ctx.service.roles.updateRole('adminuserrole', {
-      id: id,
-      [obj.key]: prevArr.join(','),
+      uuid,
+      [key]: prevArr.join(','),
+    })
+    if (errRole) return errRole
+  }
+  async removeAdminuserrole(uuid, obj, PType) {
+    const role = await this.ctx.service.sql.selectByUUID('adminuserrole', uuid)
+    let prevArr = []
+    let key = null
+    if (PType === 'interface') {
+      key = 'interfaceId'
+      prevArr = role.interfaceId ? role.interfaceId.split(',') : []
+    } else if (PType === 'router') {
+      key = 'routerId'
+      prevArr = role.routerId ? role.routerId.split(',') : []
+    }
+    if (!key) return error(201)
+    if (!prevArr.some((v) => +v === obj.value))
+      return (this.ctx.body = error(216))
+    prevArr = prevArr.filter((v) => +v !== obj.value)
+    const errRole = await this.ctx.service.roles.updateRole('adminuserrole', {
+      uuid,
+      [key]: prevArr.join(','),
     })
     if (errRole) return errRole
   }
   checkParamsNumber(...params) {
+    const err = []
     params.forEach((p) => {
-      if (!p || typeof p !== 'number') {
-        return (this.ctx.body = error(201))
+      if ((!p && p !== 0) || typeof p !== 'number') {
+        err.push(error(201))
       }
     })
+    return err
   }
 }
 

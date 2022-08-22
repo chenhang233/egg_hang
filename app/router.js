@@ -33,7 +33,15 @@ module.exports = (app) => {
     controller.authorization.index.addRouter
   )
   router.post(
+    '/authorization/removeRouter',
+    controller.authorization.index.removeRouter
+  )
+  router.post(
     '/authorization/addInterface',
     controller.authorization.index.addInterface
+  )
+  router.post(
+    '/authorization/removeInterFace',
+    controller.authorization.index.removeInterFace
   )
 }

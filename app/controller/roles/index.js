@@ -58,7 +58,7 @@ class RolesController extends Controller {
     }
     if (body['interfaceId']) {
       if (!(body['interfaceId'] instanceof Array)) {
-        return (ctx.body = error(214))
+        return (ctx.body = error(219))
       }
       body['interfaceId'] = body['interfaceId'].join(',')
     }
