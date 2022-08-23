@@ -5,8 +5,8 @@ class RolesController extends Controller {
   async readRole() {
     const { ctx } = this
     const roles = await ctx.service.sql.selectAll('adminuserrole')
-    const interfaceArr = await ctx.service.roles.selectRoleVisitInterface()
-    const routeArr = await ctx.service.sql.selectAll('adminuserrouter')
+    // const interfaceArr = await ctx.service.roles.selectRoleVisitInterface()
+    // const routeArr = await ctx.service.sql.selectAll('adminuserrouter')
     roles.forEach((v) => {
       // const canInterface = v.interfaceId.split(',')
       // const canRouter = v.routerId.split(',')
@@ -18,7 +18,11 @@ class RolesController extends Controller {
       //   v.routerArr = ctx.service.sql.transMap(routeArr, canRouter)
       // }
       // delete v.uuid
-      delete v.id
+      if (admin.includes(v.routerId) && admin.includes(v.interfaceId)) {
+        v.canDelete = false
+      } else {
+        v.canDelete = true
+      }
       delete v.routerId
       delete v.interfaceId
     })
@@ -35,7 +39,8 @@ class RolesController extends Controller {
       await ctx.app.mysql.insert('adminuserrole', {
         roleName,
         roleMark,
-        routerId: 0,
+        routerId: '5,0',
+        interfaceId: '11',
         uuid,
       })
     } catch (e) {
@@ -76,9 +81,10 @@ class RolesController extends Controller {
     const { uuid } = ctx.request.body
     if (!uuid.toString()) return (ctx.body = error(508))
     const removeRole = await ctx.service.sql.selectByUUID('adminuserrole', uuid)
-    console.log(removeRole, 'removeRole')
-    if (admin.includes(removeRole.uuid)) return (ctx.body = error(509))
+    if (admin.includes(String(removeRole.interfaceId)))
+      return (ctx.body = error(511))
     const err = await ctx.service.roles.deleteRole('adminuserrole', uuid)
+    await ctx.service.sql.orderWhere('adminuserrole', uuid)
     if (err) return (ctx.body = err)
     return (ctx.body = success(200))
   }

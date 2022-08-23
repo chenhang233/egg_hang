@@ -78,9 +78,7 @@ class IndexController extends Controller {
       user.roleId
     )
     const routerKeysArr = menus.routerId ? menus.routerId.split(',') : [0]
-    console.log(routerKeysArr, 'routerKeysArr')
     let routeArr = await ctx.service.sql.selectAll('adminuserrouter')
-    console.log(routeArr, 'routeArr')
     if (admin.includes(routerKeysArr[0])) {
       routeArr.forEach((obj) => (obj.auth = true))
     } else {
@@ -88,6 +86,7 @@ class IndexController extends Controller {
         (obj) => (obj.auth = routerKeysArr.includes(String(obj.uuid)))
       )
     }
+    // console.log(routeArr, 'routeArr', routerKeysArr, 'routerKeysArr')
     const cannotKeys = await ctx.service.users.cannotKeys()
     for (let k in menus) {
       if (cannotKeys.includes(k)) delete menus[k]

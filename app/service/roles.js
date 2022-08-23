@@ -44,19 +44,37 @@ class RolesService extends Service {
     if (PType === 'interface') {
       key = 'interfaceId'
       prevArr = role.interfaceId ? role.interfaceId.split(',') : []
+      if (prevArr.some((v) => +v === obj.value)) return error(216)
+      prevArr.push(String(obj.value))
+      const errRole = await this.ctx.service.roles.updateRole('adminuserrole', {
+        uuid,
+        [key]: prevArr.join(','),
+      })
+      if (errRole) return errRole
     } else if (PType === 'router') {
       key = 'routerId'
       prevArr = role.routerId ? role.routerId.split(',') : []
+      if (prevArr.some((v) => +v === obj.value)) return error(216)
+      let routerAll = await this.ctx.service.sql.selectAll('adminuserrouter')
+      let currentInterface = routerAll.find((v) => v.uuid === obj.value)
+      if (!currentInterface) return error(510)
+      let parentIds = []
+      while (currentInterface.parentId) {
+        currentInterface = routerAll.find(
+          (obj) => obj.rootId === currentInterface.parentId
+        )
+        parentIds.push(String(currentInterface.uuid))
+      }
+      prevArr.push(String(obj.value))
+      parentIds = parentIds.filter((v) => !prevArr.includes(v))
+      const resultArr = [...prevArr, ...parentIds]
+      const errRole = await this.ctx.service.roles.updateRole('adminuserrole', {
+        uuid,
+        [key]: resultArr.join(','),
+      })
+      if (errRole) return errRole
     }
     if (!key) return error(201)
-    if (prevArr.some((v) => +v === obj.value))
-      return (this.ctx.body = error(216))
-    prevArr.push(String(obj.value))
-    const errRole = await this.ctx.service.roles.updateRole('adminuserrole', {
-      uuid,
-      [key]: prevArr.join(','),
-    })
-    if (errRole) return errRole
   }
   async removeAdminuserrole(uuid, obj, PType) {
     const role = await this.ctx.service.sql.selectByUUID('adminuserrole', uuid)
@@ -65,19 +83,45 @@ class RolesService extends Service {
     if (PType === 'interface') {
       key = 'interfaceId'
       prevArr = role.interfaceId ? role.interfaceId.split(',') : []
+      if (!prevArr.some((v) => +v === obj.value)) return error(216)
+      prevArr = prevArr.filter((v) => +v !== obj.value)
+      const errRole = await this.ctx.service.roles.updateRole('adminuserrole', {
+        uuid,
+        [key]: prevArr.join(','),
+      })
+      if (errRole) return errRole
     } else if (PType === 'router') {
       key = 'routerId'
       prevArr = role.routerId ? role.routerId.split(',') : []
+      if (!prevArr.some((v) => +v === obj.value)) return error(216)
+      prevArr = prevArr.filter((v) => +v !== obj.value)
+      let routerAll = await this.ctx.service.sql.selectAll('adminuserrouter')
+      let currentInterface = routerAll.find((v) => v.uuid === obj.value)
+      if (!currentInterface) return error(510)
+      let isBrother = routerAll
+        .filter((v) => prevArr.includes(String(v.uuid)))
+        .some((obj) => obj.parentId === currentInterface.parentId)
+      let parentIds = []
+      if (!isBrother) {
+        while (currentInterface.parentId) {
+          currentInterface = routerAll.find(
+            (obj) => obj.rootId === currentInterface.parentId
+          )
+          parentIds.push(String(currentInterface.uuid))
+        }
+        prevArr = prevArr.filter(
+          (v) => +v !== obj.value && !parentIds.includes(String(v))
+        )
+      } else {
+        prevArr = prevArr.filter((v) => +v !== obj.value)
+      }
+      const errRole = await this.ctx.service.roles.updateRole('adminuserrole', {
+        uuid,
+        [key]: prevArr.join(','),
+      })
+      if (errRole) return errRole
     }
     if (!key) return error(201)
-    if (!prevArr.some((v) => +v === obj.value))
-      return (this.ctx.body = error(216))
-    prevArr = prevArr.filter((v) => +v !== obj.value)
-    const errRole = await this.ctx.service.roles.updateRole('adminuserrole', {
-      uuid,
-      [key]: prevArr.join(','),
-    })
-    if (errRole) return errRole
   }
   checkParamsNumber(...params) {
     const err = []

@@ -28,6 +28,8 @@ module.exports = (options) => {
       const roleArr = await ctx.service.sql.selectByEveryName('adminuserrole', {
         uuid: userinfo.roleId,
       })
+      // console.log(roleArr, 'roleArr')
+      if (!roleArr[0]) return (ctx.body = error(512))
       if (admin.includes(roleArr[0].routerId)) {
         return await next()
       }

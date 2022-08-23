@@ -28,6 +28,10 @@ class SqlService extends Service {
     })
     return data.account
   }
+  async orderWhere(table, uuid) {
+    const sql = `UPDATE ${table} SET uuid=uuid-1 where uuid>${uuid}`
+    await this.app.mysql.query(sql)
+  }
   transformObj(obj, ...omit) {
     omit.forEach((prop) => {
       if (obj[prop]) {
