@@ -5,9 +5,12 @@
  */
 module.exports = (app) => {
   const { router, controller, io } = app
-  router.get('/', controller.home.index)
+  // router.get('/', controller.home.index)
   // socket.io
   io.of('/').route('exchange', io.controller.nsp.exchange)
+  // 前端
+  router.get('/', controller.home.ReactIndex)
+  // 接口
   router.get(
     '/dashboard/visitNumbers',
     controller.dashboard.index.getvisitNumbers

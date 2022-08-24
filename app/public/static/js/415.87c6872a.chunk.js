@@ -1,0 +1,2 @@
+"use strict";(self.webpackChunkegg_frontend=self.webpackChunkegg_frontend||[]).push([[415],{8415:function(e,n,r){r.r(n);var u=r(184);n.default=function(){return(0,u.jsx)("div",{children:"forum"})}}}]);
+//# sourceMappingURL=415.87c6872a.chunk.js.map

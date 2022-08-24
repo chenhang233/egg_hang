@@ -1,6 +1,7 @@
 /* eslint valid-jsdoc: "off" */
 
 'use strict'
+const path = require('path')
 
 /**
  * @param {Egg.EggAppInfo} appInfo app info
@@ -11,6 +12,16 @@ module.exports = (appInfo) => {
    * @type {Egg.EggAppConfig}
    **/
   const config = (exports = {})
+  // 将public下的静态资源重定向到根目录下
+  config.static = {
+    prefix: '/static',
+    dir: path.join(appInfo.baseDir, 'app/public'),
+    dynamic: true,
+    preload: false,
+    maxAge: 31536000,
+    buffer: true,
+  }
+
   // websocket
   config.io = {
     init: {}, // passed to engine.io
@@ -54,7 +65,7 @@ module.exports = (appInfo) => {
   // add your middleware config here
   config.middleware = ['auth']
   config.auth = {
-    whiteurlList: ['/users/login', '/users/register', '/users/getToken'],
+    whiteurlList: ['/users/login', '/users/register', '/users/getToken', '/'],
   }
   // add your user config here
   const userConfig = {

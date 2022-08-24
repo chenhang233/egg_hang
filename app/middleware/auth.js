@@ -12,7 +12,14 @@ module.exports = (options) => {
     let token = ctx.headers.authorization
     const url = ctx.url
     console.log(ctx.ip, ctx.ips, 'ip', url, 'url')
-    if (whiteurlList.includes(url)) return await next()
+    if (
+      whiteurlList.includes(url) ||
+      /^\/public/.test(url) ||
+      /^\/static/.test(url) ||
+      /^\/view/.test(url)
+    ) {
+      return await next()
+    }
     if (!token) return (ctx.body = error(215))
     if (!token.startsWith('Bearer ')) return (ctx.body = error(209))
     token = token.substring(7)
