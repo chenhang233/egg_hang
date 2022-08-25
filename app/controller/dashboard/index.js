@@ -13,6 +13,7 @@ class DashboardController extends Controller {
       obj.username = await ctx.service.sql.selectByUUIDFindUsername(obj.uuid)
       obj.loginTime = ctx.helper.cnTime(obj.loginTime)
       delete obj.uuid
+      delete obj.id
       return obj
     })
     return Promise.all(data)

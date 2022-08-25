@@ -2,7 +2,6 @@ const { Controller } = require('egg')
 
 const path = require('path')
 const fs = require('fs')
-const { log } = require('console')
 class HomeController extends Controller {
   async index() {
     const { ctx } = this

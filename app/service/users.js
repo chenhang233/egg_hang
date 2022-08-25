@@ -13,7 +13,7 @@ class UsersService extends Service {
       { info, Refresh: true },
       this.app.config.jwt.secret,
       {
-        expiresIn: '3h',
+        expiresIn: '7h',
       }
     )
     return token
@@ -23,8 +23,8 @@ class UsersService extends Service {
       const info = this.app.jwt.verify(token, this.config.jwt.secret)
       return { username: info.info.username, pastTime: info.exp, details: info }
     } catch (e) {
-      this.ctx.status = 401
-      return (this.ctx.body = error(208))
+      return (this.ctx.status = 401)
+      // return (this.ctx.body = error(208))
     }
   }
   async insertLoginAction(table, info) {

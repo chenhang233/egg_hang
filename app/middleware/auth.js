@@ -9,22 +9,29 @@ const { admin } = require('../../config/config.static')
 module.exports = (options) => {
   const { whiteurlList } = options
   return async function (ctx, next) {
-    let token = ctx.headers.authorization
+    const interfaceAll = await ctx.service.sql.selectAll('adminuserinterface')
+    const authInterfaceArr = interfaceAll
+      .filter((obj) => !whiteurlList.includes(obj.url))
+      .map((obj) => obj.url)
     const url = ctx.url
-    console.log(ctx.ip, ctx.ips, 'ip', url, 'url')
+    // if (!authInterfaceArr.includes(url)) {
+    //   return await next()
+    // }
     if (
-      whiteurlList.includes(url) ||
+      !authInterfaceArr.includes(url) ||
       /^\/public/.test(url) ||
       /^\/static/.test(url) ||
       /^\/view/.test(url)
     ) {
       return await next()
     }
+    let token = ctx.headers.authorization
     if (!token) return (ctx.body = error(215))
     if (!token.startsWith('Bearer ')) return (ctx.body = error(209))
     token = token.substring(7)
-    console.log('中间件执行,auth', url)
+    console.log(ctx.ip, ctx.ips, 'ip', url, 'url')
     const { username, details } = ctx.service.users.verifyToken(token)
+    console.log('中间件执行,auth')
     if (details && details.Refresh) return (ctx.body = error(215))
     console.log('权限中心, 当前登录人是:', username)
     console.log('权限中心, 当前请求url:', url)
@@ -55,10 +62,9 @@ module.exports = (options) => {
         return await next()
       }
       console.log(flag, url, '没有当前接口权限')
-      ctx.status = 401
       return (ctx.body = error(509))
     } else {
-      return (ctx.body = error(207))
+      return (ctx.body = error(509))
     }
   }
 }

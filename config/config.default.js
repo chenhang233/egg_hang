@@ -63,9 +63,9 @@ module.exports = (appInfo) => {
     secret: '_1659331422753_9166', //自定义 token 的加密条件字符串
   }
   // add your middleware config here
-  config.middleware = ['auth']
+  config.middleware = ['auth', 'notfoundHandler']
   config.auth = {
-    whiteurlList: ['/users/login', '/users/register', '/users/getToken', '/'],
+    whiteurlList: ['/users/login', '/users/register', '/users/getToken'],
   }
   // add your user config here
   const userConfig = {
