@@ -28,6 +28,7 @@
     "node": ">=16.0.0"
   },
   "scripts": {
+    "scripts:start": "node scripts/start --sticky",
     "start": "egg-scripts start --daemon --title=egg-server-egg_hang --sticky",
     "stop": "egg-scripts stop --title=egg-server-egg_hang",
     "dev": "egg-bin dev --sticky",
