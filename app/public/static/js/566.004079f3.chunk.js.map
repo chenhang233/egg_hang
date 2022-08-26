@@ -1,1 +1,0 @@
-{"version":3,"file":"static/js/566.004079f3.chunk.js","mappings":"qIAIA,UAJgB,WACd,OAAO,oCACR,C","sources":["pages/Index/pages/Analyse/index.tsx"],"sourcesContent":["const Analyse = () => {\r\n  return <div>analyse</div>\r\n}\r\n\r\nexport default Analyse\r\n"],"names":[],"sourceRoot":""}

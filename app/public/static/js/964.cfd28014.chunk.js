@@ -1,2 +1,0 @@
-"use strict";(self.webpackChunkegg_frontend=self.webpackChunkegg_frontend||[]).push([[964],{9964:function(e,n,r){r.r(n);var t=r(184);n.default=function(){return(0,t.jsx)("div",{children:"caledar"})}}}]);
-//# sourceMappingURL=964.cfd28014.chunk.js.map

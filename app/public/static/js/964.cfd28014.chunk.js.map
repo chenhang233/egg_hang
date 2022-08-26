@@ -1,1 +1,0 @@
-{"version":3,"file":"static/js/964.cfd28014.chunk.js","mappings":"qIAIA,UAJiB,WACf,OAAO,oCACR,C","sources":["pages/Index/pages/Calendar/index.tsx"],"sourcesContent":["const Calendar = () => {\r\n  return <div>caledar</div>\r\n}\r\n\r\nexport default Calendar\r\n"],"names":[],"sourceRoot":""}
