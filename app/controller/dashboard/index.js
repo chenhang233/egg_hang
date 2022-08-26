@@ -12,6 +12,7 @@ class DashboardController extends Controller {
     const data = info.map(async (obj) => {
       obj.username = await ctx.service.sql.selectByUUIDFindUsername(obj.uuid)
       obj.loginTime = ctx.helper.cnTime(obj.loginTime)
+      obj.logoutTime = ctx.helper.cnTime(obj.logoutTime)
       delete obj.uuid
       delete obj.id
       return obj

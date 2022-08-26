@@ -22,6 +22,7 @@ module.exports = {
     moment(new Date(time * 1000)).fromNow()
   },
   cnTime(time) {
+    if (!time) return null
     return moment(new Date(+time)).format('YYYY-MM-DD hh:mm:ss')
   },
   transRouterChildren(routerArr, rootId) {

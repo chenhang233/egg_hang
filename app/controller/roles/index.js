@@ -39,7 +39,7 @@ class RolesController extends Controller {
       await ctx.app.mysql.insert('adminuserrole', {
         roleName,
         roleMark,
-        routerId: '5,0',
+        routerId: '5,0,9,10',
         interfaceId: '11',
         uuid,
       })

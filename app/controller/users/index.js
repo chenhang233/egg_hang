@@ -56,7 +56,7 @@ class IndexController extends Controller {
     const userinfo = { ...prevData, ...infoData, username: username }
     const token = ctx.service.users.setToken(userinfo)
     const refreshToken = ctx.service.users.setRefreshToken(userinfo)
-    await ctx.service.users.insertLoginAction('logininfo', {
+    await ctx.service.users.insertLoginAction({
       uuid: prevData.uuid,
       loginTime: Date.now(),
     })
@@ -65,6 +65,19 @@ class IndexController extends Controller {
       token,
       refreshToken,
     }))
+  }
+  async logout() {
+    const ctx = this.ctx
+    const { uuid, logoutTime } = ctx.request.body
+    if (!uuid) {
+      return (ctx.body = error(508))
+    }
+    const infoArr = await ctx.service.sql.selectAll('logininfo')
+    infoArr.sort((a, b) => b.id - a.id)
+    const id = infoArr.find((obj) => obj.uuid === uuid).id
+    const err = await ctx.service.users.updateLogoutAction(logoutTime, id)
+    if (err) return (ctx.body = err)
+    return (ctx.body = success(200))
   }
   async getUserMenus() {
     const ctx = this.ctx
@@ -118,32 +131,26 @@ class IndexController extends Controller {
   }
   async getUserInfo() {
     const ctx = this.ctx
-    const { id } = ctx.request.body
-    if (!id) return (ctx.body = error(201))
-    const adminuser = await ctx.service.sql.selectById('adminuser', id)
+    const UUID = ctx.UUID
+    if (!UUID) {
+      return (ctx.body = error(508))
+    }
+    const adminuser = await ctx.service.sql.selectByUUID('adminuser', UUID)
     if (!adminuser) return (ctx.body = error(207))
     const adminuserinfo = await ctx.service.sql.selectByUUID(
       'adminuserinfo',
       adminuser.uuid
     )
-    delete adminuserinfo.id
     const userinfo = { ...adminuser, ...adminuserinfo }
     userinfo.username = userinfo.account
-    if (userinfo.avatar) {
+    if (userinfo.avatar && !/^http/.test(userinfo.avatar)) {
       const res = fs.readFileSync(userinfo.avatar, 'binary')
       userinfo.avatar = res
     }
     delete userinfo.account
-    const cannotKeys = [
-      'id',
-      'uuid',
-      'roleId',
-      'routerId',
-      'routerFnId',
-      'interfaceId',
-    ]
+    const cannotKeys = ['id', 'roleId', 'routerId', 'routerFnId', 'interfaceId']
     for (let k in userinfo) {
-      if (cannotKeys.includes(k) && k !== 'id') delete userinfo[k]
+      if (cannotKeys.includes(k)) delete userinfo[k]
     }
     return (ctx.body = success(200, userinfo))
   }

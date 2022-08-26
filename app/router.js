@@ -18,6 +18,7 @@ module.exports = (app) => {
   router.get('/dashboard/getWebStudy', controller.dashboard.index.getWebStudy)
   router.post('/users/register', controller.users.index.register)
   router.post('/users/login', controller.users.index.login)
+  router.post('/users/logout', controller.users.index.logout)
   router.post('/users/getUserMenus', controller.users.index.getUserMenus)
   router.post('/users/getUserInfo', controller.users.index.getUserInfo)
   router.post('/users/setUserInfo', controller.users.index.setUserInfo)

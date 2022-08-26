@@ -27,15 +27,23 @@ class UsersService extends Service {
       // return (this.ctx.body = error(208))
     }
   }
-  async insertLoginAction(table, info) {
-    const data = await this.app.mysql.insert(table, info)
+  async insertLoginAction(info) {
+    const data = await this.app.mysql.insert('logininfo', info)
     return data
+  }
+  async updateLogoutAction(logoutTime, id) {
+    const data = await this.app.mysql.update(
+      'logininfo',
+      { logoutTime },
+      { where: { id: id } }
+    )
+    if (data.affectedRows === 0) return error(507)
   }
   async updateUserInfo(table, obj) {
     const res = await this.app.mysql.update(table, obj, {
       where: { uuid: obj.uuid },
     })
-    if (res.affectedRows === 0) return (this.ctx.body = error(507))
+    if (res.affectedRows === 0) return error(507)
   }
   // async insertLoginAction(table, info) {
   //   const data = await this.app.mysql.insert(table, info)
