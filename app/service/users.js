@@ -24,7 +24,14 @@ class UsersService extends Service {
       return { username: info.info.username, pastTime: info.exp, details: info }
     } catch (e) {
       return (this.ctx.status = 401)
-      // return (this.ctx.body = error(208))
+    }
+  }
+  verifyRefreshToken(refreshToken) {
+    try {
+      const info = this.app.jwt.verify(refreshToken, this.config.jwt.secret)
+      return { username: info.info.username, pastTime: info.exp, details: info }
+    } catch (e) {
+      return (this.ctx.status = 403)
     }
   }
   async insertLoginAction(info) {

@@ -60,6 +60,7 @@ class IndexController extends Controller {
       uuid: prevData.uuid,
       loginTime: Date.now(),
     })
+    await ctx.service.cache.set('UUID', prevData.uuid)
     return (ctx.body = success(200, {
       // menu: { menuInfo: menus, router: routeArr },
       token,
@@ -81,7 +82,7 @@ class IndexController extends Controller {
   }
   async getUserMenus() {
     const ctx = this.ctx
-    const UUID = ctx.UUID
+    const UUID = await ctx.service.cache.get('UUID')
     if (!UUID) {
       return (ctx.body = error(508))
     }
@@ -119,9 +120,11 @@ class IndexController extends Controller {
     if (!refreshToken) return (ctx.body = error(217))
     if (!refreshToken.startsWith('Bearer ')) return (ctx.body = error(209))
     refreshToken = refreshToken.substring(7)
-    const { details, username } = ctx.service.users.verifyToken(refreshToken)
+    const { details, username } =
+      ctx.service.users.verifyRefreshToken(refreshToken)
     if (!username || !details || !details.Refresh) {
-      return (ctx.body = error(218))
+      const uuid = await ctx.service.cache.get('UUID')
+      return (ctx.body = error(218, { code: 403, uuid: uuid }))
     }
     const token = ctx.service.users.setToken({
       details: details,
@@ -131,7 +134,7 @@ class IndexController extends Controller {
   }
   async getUserInfo() {
     const ctx = this.ctx
-    const UUID = ctx.UUID
+    const UUID = await ctx.service.cache.get('UUID')
     if (!UUID) {
       return (ctx.body = error(508))
     }
@@ -144,8 +147,12 @@ class IndexController extends Controller {
     const userinfo = { ...adminuser, ...adminuserinfo }
     userinfo.username = userinfo.account
     if (userinfo.avatar && !/^http/.test(userinfo.avatar)) {
-      const res = fs.readFileSync(userinfo.avatar, 'binary')
-      userinfo.avatar = res
+      try {
+        const res = fs.readFileSync(userinfo.avatar, 'binary')
+        userinfo.avatar = res
+      } catch {
+        userinfo.avatar = null
+      }
     }
     delete userinfo.account
     const cannotKeys = ['id', 'roleId', 'routerId', 'routerFnId', 'interfaceId']

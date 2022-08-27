@@ -1,9 +1,12 @@
 const { codeMap, letterKeys } = require('../../config/config.static')
 module.exports = {
-  error(message) {
+  error(message, data) {
     const str = codeMap[message]
     if (!str) {
       return { code: 1, message: '未配置错误信息' }
+    }
+    if (data) {
+      return { code: 1, message: str, data: data }
     }
     return { code: 1, message: str }
   },

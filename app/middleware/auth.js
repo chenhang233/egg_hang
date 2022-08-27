@@ -38,7 +38,6 @@ module.exports = (options) => {
     if (username) {
       let flag = false
       const userinfo = await ctx.service.sql.selectByName('adminuser', username)
-      ctx.UUID = userinfo.uuid
       const roleArr = await ctx.service.sql.selectByEveryName('adminuserrole', {
         uuid: userinfo.roleId,
       })
