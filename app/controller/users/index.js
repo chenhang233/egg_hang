@@ -60,7 +60,9 @@ class IndexController extends Controller {
       uuid: prevData.uuid,
       loginTime: Date.now(),
     })
-    await ctx.service.cache.set('UUID', prevData.uuid)
+    await ctx.service.cache.hashSetUUID(token, prevData.uuid)
+    const allUUID = await ctx.service.cache.hashGETUUIDAll()
+    this.logger.info(allUUID, 'login remain UUID')
     return (ctx.body = success(200, {
       // menu: { menuInfo: menus, router: routeArr },
       token,
@@ -70,6 +72,7 @@ class IndexController extends Controller {
   async logout() {
     const ctx = this.ctx
     const { uuid, logoutTime } = ctx.request.body
+    // const token = this.ctx.headers.authorization?.substring(7)
     if (!uuid) {
       return (ctx.body = error(508))
     }
@@ -78,14 +81,24 @@ class IndexController extends Controller {
     const id = infoArr.find((obj) => obj.uuid === uuid).id
     const err = await ctx.service.users.updateLogoutAction(logoutTime, id)
     if (err) return (ctx.body = err)
+    const allUUID = await ctx.service.cache.hashGETUUIDAll()
+    for (const key in allUUID) {
+      if (allUUID[key] === uuid) {
+        await ctx.service.cache.hashRemoveUUID(key)
+      }
+    }
+    this.logger.info(
+      uuid,
+      'UUID',
+      await ctx.service.cache.hashGETUUIDAll(),
+      'out remain'
+    )
     return (ctx.body = success(200))
   }
   async getUserMenus() {
     const ctx = this.ctx
-    const UUID = await ctx.service.cache.get('UUID')
-    if (!UUID) {
-      return (ctx.body = error(508))
-    }
+    const token = this.ctx.headers.authorization.substring(7)
+    const UUID = await ctx.service.cache.hashGetUUID(token)
     const user = await ctx.service.sql.selectByUUID('adminuser', UUID)
     const menus = await ctx.service.sql.selectByUUID(
       'adminuserrole',
@@ -100,7 +113,6 @@ class IndexController extends Controller {
         (obj) => (obj.auth = routerKeysArr.includes(String(obj.uuid)))
       )
     }
-    // console.log(routeArr, 'routeArr', routerKeysArr, 'routerKeysArr')
     const cannotKeys = await ctx.service.users.cannotKeys()
     for (let k in menus) {
       if (cannotKeys.includes(k)) delete menus[k]
@@ -116,28 +128,33 @@ class IndexController extends Controller {
   }
   async getToken() {
     const ctx = this.ctx
+    const reqtoken = ctx.headers.authorization.substring(7)
+    const UUID = await ctx.service.cache.hashGetUUID(reqtoken)
     let { refreshToken } = ctx.request.body
     if (!refreshToken) return (ctx.body = error(217))
     if (!refreshToken.startsWith('Bearer ')) return (ctx.body = error(209))
     refreshToken = refreshToken.substring(7)
     const { details, username } =
       ctx.service.users.verifyRefreshToken(refreshToken)
+    await ctx.service.cache.hashRemoveUUID(reqtoken)
+    if (!UUID) {
+      details.Refresh = false
+      ctx.status = 403
+    }
     if (!username || !details || !details.Refresh) {
-      const uuid = await ctx.service.cache.get('UUID')
-      return (ctx.body = error(218, { code: 403, uuid: uuid }))
+      return (ctx.body = error(218, { code: 403, uuid: UUID }))
     }
     const token = ctx.service.users.setToken({
       details: details,
       username: username,
     })
+    await ctx.service.cache.hashSetUUID(token, UUID)
     return (ctx.body = success(200, { token }))
   }
   async getUserInfo() {
     const ctx = this.ctx
-    const UUID = await ctx.service.cache.get('UUID')
-    if (!UUID) {
-      return (ctx.body = error(508))
-    }
+    const token = this.ctx.headers.authorization.substring(7)
+    const UUID = await ctx.service.cache.hashGetUUID(token)
     const adminuser = await ctx.service.sql.selectByUUID('adminuser', UUID)
     if (!adminuser) return (ctx.body = error(207))
     const adminuserinfo = await ctx.service.sql.selectByUUID(

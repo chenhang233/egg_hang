@@ -36,7 +36,7 @@ class CacheService extends Service {
    * @param {Number} expir 过期时间 单位秒
    * @return { Number } 返回索引
    */
-  async setList(key, value, type = 'push', expir = 0) {
+  async setList(key, value, type = 'rpush', expir = 0) {
     const { redis } = this.app
     if (expir > 0) {
       await redis.expire(key, expir)
@@ -44,10 +44,13 @@ class CacheService extends Service {
     if (typeof value === 'object') {
       value = JSON.stringify(value)
     }
-    if (type === 'push') {
+    if (type === 'rpush') {
       return await redis.rpush(key, value)
     }
-    return await redis.lpush(key, value)
+    if (type === 'lpush') {
+      return await redis.lpush(key, value)
+    }
+    return '格式错误'
   }
 
   /**
@@ -116,6 +119,22 @@ class CacheService extends Service {
    */
   async clear() {
     return await this.app.redis.flushall()
+  }
+
+  async hashSetUUID(key, value) {
+    const { redis } = this.app
+    return await redis.hset('UUID', key, value)
+  }
+  async hashGetUUID(key) {
+    const { redis } = this.app
+    return await redis.hget('UUID', key)
+  }
+  async hashGETUUIDAll() {
+    return await this.app.redis.hgetall('UUID')
+  }
+  async hashRemoveUUID(key) {
+    const { redis } = this.app
+    return await redis.hdel('UUID', key)
   }
 }
 

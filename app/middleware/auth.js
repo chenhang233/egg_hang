@@ -36,6 +36,11 @@ module.exports = (options) => {
     console.log('权限中心, 当前登录人是:', username)
     console.log('权限中心, 当前请求url:', url)
     if (username) {
+      const UUID = await ctx.service.cache.hashGetUUID(token)
+      if (!UUID) {
+        ctx.status = 401
+        return (ctx.body = error(509))
+      }
       let flag = false
       const userinfo = await ctx.service.sql.selectByName('adminuser', username)
       const roleArr = await ctx.service.sql.selectByEveryName('adminuserrole', {
@@ -53,7 +58,6 @@ module.exports = (options) => {
       const canArr = currentRole.interfaceId
         ? currentRole.interfaceId.split(',')
         : []
-      console.log(canArr, 'canArr', authObj.uuid, 'authObj.uuid')
       if (canArr.includes(String(authObj.uuid))) {
         flag = true
       }
