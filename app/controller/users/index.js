@@ -70,30 +70,34 @@ class IndexController extends Controller {
     }))
   }
   async logout() {
-    const ctx = this.ctx
-    const { uuid, logoutTime } = ctx.request.body
-    // const token = this.ctx.headers.authorization?.substring(7)
-    if (!uuid) {
-      return (ctx.body = error(508))
-    }
-    const infoArr = await ctx.service.sql.selectAll('logininfo')
-    infoArr.sort((a, b) => b.id - a.id)
-    const id = infoArr.find((obj) => obj.uuid === uuid).id
-    const err = await ctx.service.users.updateLogoutAction(logoutTime, id)
-    if (err) return (ctx.body = err)
-    const allUUID = await ctx.service.cache.hashGETUUIDAll()
-    for (const key in allUUID) {
-      if (allUUID[key] === uuid) {
-        await ctx.service.cache.hashRemoveUUID(key)
+    try {
+      const ctx = this.ctx
+      const { uuid, logoutTime } = ctx.request.body
+      // const token = this.ctx.headers.authorization?.substring(7)
+      if (!uuid) {
+        return (ctx.body = error(508))
       }
+      const infoArr = await ctx.service.sql.selectAll('logininfo')
+      infoArr.sort((a, b) => b.id - a.id)
+      const id = infoArr.find((obj) => obj.uuid === uuid).id
+      const err = await ctx.service.users.updateLogoutAction(logoutTime, id)
+      if (err) return (ctx.body = err)
+      const allUUID = await ctx.service.cache.hashGETUUIDAll()
+      for (const key in allUUID) {
+        if (allUUID[key] === uuid) {
+          await ctx.service.cache.hashRemoveUUID(key)
+        }
+      }
+      this.logger.info(
+        uuid,
+        'UUID',
+        await ctx.service.cache.hashGETUUIDAll(),
+        'out remain'
+      )
+      return (ctx.body = success(200))
+    } catch (error) {
+      console.dir(error, 'error')
     }
-    this.logger.info(
-      uuid,
-      'UUID',
-      await ctx.service.cache.hashGETUUIDAll(),
-      'out remain'
-    )
-    return (ctx.body = success(200))
   }
   async getUserMenus() {
     const ctx = this.ctx

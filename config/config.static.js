@@ -64,4 +64,5 @@ module.exports = {
   admin: ['13kl12cd210hi311ij522tu62cd%21st%'],
   RoomPREFIX: 'room',
   tempRoom: 'tempP2P',
+  loginRoom: 'login',
 }

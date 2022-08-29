@@ -13,7 +13,7 @@ class UpdateTempRoom extends Subscription {
   async subscribe() {
     await this.service.cache.set(`${RoomPREFIX}:${tempRoom}`, true)
     const room = await this.service.cache.get(`${RoomPREFIX}:${tempRoom}`)
-    this.logger.info('当前room内存的情况', room)
+    this.logger.info('当前 tempRoom 内存的情况', room)
   }
 }
 

@@ -26,7 +26,7 @@ module.exports = (appInfo) => {
   config.io = {
     init: {}, // passed to engine.io
     namespace: {
-      '/': {
+      '/forum': {
         connectionMiddleware: ['auth'],
         packetMiddleware: [], // 针对消息的处理暂时不实现
       },

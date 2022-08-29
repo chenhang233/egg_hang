@@ -4,7 +4,7 @@ module.exports = () => {
   return async (ctx, next) => {
     const { app, socket, logger, helper, service } = ctx
     const id = socket.id
-    const nsp = app.io.of('/')
+    const nsp = app.io.of('/forum')
     const query = socket.handshake.query
     // 用户信息
     const { room, userId } = query
@@ -38,7 +38,6 @@ module.exports = () => {
     // 用户加入
     logger.info('#join', room)
     socket.join(room)
-
     // 在线列表
     nsp.adapter.clients(rooms, (err, clients) => {
       logger.info('#online_join', clients)
