@@ -27,13 +27,13 @@ module.exports = (appInfo) => {
     init: {}, // passed to engine.io
     namespace: {
       '/': {
-        connectionMiddleware: ['connection', 'auth'],
+        connectionMiddleware: ['auth'],
         packetMiddleware: [], // 针对消息的处理暂时不实现
       },
-      // '/example': {
-      //   connectionMiddleware: [],
-      //   packetMiddleware: [],
-      // },
+      '/login': {
+        connectionMiddleware: ['connection'],
+        packetMiddleware: [],
+      },
     },
     redis: {
       host: '127.0.0.1',
