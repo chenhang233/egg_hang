@@ -138,7 +138,7 @@ class IndexController extends Controller {
       ctx.service.users.verifyRefreshToken(refreshToken)
     await ctx.service.cache.hashRemoveUUID(reqtoken)
     if (!UUID) {
-      details.Refresh = false
+      details && (details.Refresh = false)
       ctx.status = 403
     }
     if (!username || !details || !details.Refresh) {

@@ -7,6 +7,7 @@ module.exports = (app) => {
   const { router, controller, io } = app
   // router.get('/', controller.home.index)
   // socket.io
+  // of 来划分命名空间
   io.of('/').route('exchange', io.controller.nsp.exchange)
   // 前端
   router.get('/', controller.home.ReactIndex)

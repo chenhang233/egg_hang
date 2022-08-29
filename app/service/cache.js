@@ -132,6 +132,9 @@ class CacheService extends Service {
   async hashGETUUIDAll() {
     return await this.app.redis.hgetall('UUID')
   }
+  async hashGETUUIDALL_length() {
+    return await this.app.redis.hlen('UUID')
+  }
   async hashRemoveUUID(key) {
     const { redis } = this.app
     return await redis.hdel('UUID', key)
