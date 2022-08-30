@@ -9,7 +9,7 @@ module.exports = (app) => {
   // socket.io
   // of 来划分命名空间
   io.of('/forum').route('exchange', io.controller.nsp.exchange)
-  io.of('/login').route('login', io.controller.login.ping)
+  io.of('/login').route('ping', io.controller.login.ping)
   // 前端
   router.get('/', controller.home.ReactIndex)
   // 接口

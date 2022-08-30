@@ -212,27 +212,31 @@ class IndexController extends Controller {
   }
   async uploadAvatar() {
     const ctx = this.ctx
-    const { id, avatar } = ctx.request.body
-    if (!id || !avatar) return (ctx.body = error(201))
-    const adminuser = await ctx.service.sql.selectById('adminuser', id)
+    const avatarFile = ctx.request.files[0]
+    if (!avatarFile) return (ctx.body = error(201))
+    const token = this.ctx.headers.authorization.substring(7)
+    const UUID = await ctx.service.cache.hashGetUUID(token)
+    const adminuser = await ctx.service.sql.selectByUUID('adminuser', UUID)
     if (!adminuser) return (ctx.body = error(207))
     const p = path.join(__dirname + '../../../uploads/') + Date.now()
-    fs.writeFileSync(p, avatar)
-    // this.logger.warn(err, '上传base64 error')
-    const updateObj = {}
-    updateObj.uuid = adminuser.uuid
-    updateObj.avatar = p
-    const data = await ctx.service.sql.selectByUUID(
-      'adminuserinfo',
-      updateObj.uuid
-    )
-    fs.unlinkSync(data.avatar) // 删老的
-    const myerr = await ctx.service.users.updateUserInfo(
-      'adminuserinfo',
-      updateObj
-    )
-    if (myerr) return (ctx.body = myerr)
-    return (ctx.body = success(200))
+    const read = new FileReader()
+    read.readAsDataURL(avatarFile)
+    read.onload = async (e) => {
+      fs.writeFileSync(p, e.target.result)
+      const updateObj = {
+        uuid: UUID,
+        avatar: p,
+      }
+      if (fs.readFileSync(adminuser.avatar)) {
+        fs.unlinkSync(adminuser.avatar)
+      }
+      const myerr = await ctx.service.users.updateUserInfo(
+        'adminuserinfo',
+        updateObj
+      )
+      if (myerr) return (ctx.body = myerr)
+      ctx.body = success(200)
+    }
   }
 }
 

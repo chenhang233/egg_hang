@@ -10,31 +10,16 @@ module.exports = () => {
     const { room, userId } = query
     const rooms = [room]
     logger.info('#user_info', id, room, userId)
-    const tick = (id, msg) => {
-      logger.info('#tick', id, msg)
+    // const hasRoom = await service.cache.get(`${RoomPREFIX}:${room}`)
+    // logger.info('#has_exist', hasRoom)
 
-      // 踢出用户前发送消息
-      socket.emit(id, helper.parseMsg('deny', msg))
-
-      // 调用 adapter 方法踢出用户，客户端触发 disconnect 事件
-      nsp.adapter.remoteDisconnect(id, true, (err) => {
-        logger.info(err)
-      })
-    }
-
-    // 检查房间是否存在，不存在则踢出用户
-    const hasRoom = await service.cache.get(`${RoomPREFIX}:${room}`)
-
-    logger.info('#has_exist', hasRoom)
-
-    if (!hasRoom) {
-      tick(id, {
-        type: 'deleted',
-        message: 'deleted, room has been deleted.',
-      })
-      return
-    }
-
+    // if (!hasRoom) {
+    //   tick(socket, nsp, id, {
+    //     type: 'deleted',
+    //     message: '房间没创建',
+    //   })
+    //   return
+    // }
     // 用户加入
     logger.info('#join', room)
     socket.join(room)

@@ -5,18 +5,18 @@ const { loginRoom } = require('../../../config/config.static')
 
 class DefaultController extends Controller {
   async ping() {
-    console.log('执行')
+    console.log('ping!!!')
     const { ctx, app } = this
     const message = ctx.args[0] || {}
     const nsp = app.io.of('/login')
-    const client = socket.id
+    const id = socket.id
+    console.log(message)
     try {
-      const { target, payload } = message
-      if (!target) return
-      const msg = ctx.helper.parseMsg('login', payload, { client, target })
+      const { payload } = message
+      console.log('payload', payload)
+      const msg = ctx.helper.parseMsg('ping', payload, { id })
       nsp.adapter.clients([loginRoom], (err, clients) => {
-        // 发送信息
-        nsp.emit('message', msg)
+        nsp.to(id).emit('message', msg)
       })
     } catch (error) {
       app.logger.error(error)
