@@ -8,31 +8,40 @@ module.exports = () => {
     const { room, uuid } = query
     const rooms = [room]
     socket.join(room)
-    console.log(rooms, 'rooms', query, 'query')
+    // console.log(rooms, 'rooms', query, 'query', id, 'id')
+    const timeId = await service.cache.get(uuid)
+    if (timeId) {
+      console.log(timeId, 'last timeId')
+      clearTimeout(timeId)
+    }
     nsp.adapter.clients(rooms, (err, clients) => {
-      // 更新在线用户列表
-      console.log(clients, 'clients')
-      nsp.to(id).emit('message', `初始连接成功--${1}`)
+      nsp.to(id).emit('message', `初始连接成功--`)
+      nsp.to(id).emit('test', `初始连接成功--`)
+      // nsp.to(id).send(1)
     })
     await next()
     // execute when disconnect.
-    nsp.adapter.clients(rooms, async (err, clients) => {
+    let timeoutID = setTimeout(async () => {
+      console.log('go settimeout')
       const infoArr = await service.sql.selectAll('logininfo')
       infoArr.sort((a, b) => b.id - a.id)
       const id = infoArr.find((obj) => obj.uuid === uuid)?.id
-      id && (await service.users.updateLogoutAction(Date.now(), id))
-      const allUUID = await service.cache.hashGETUUIDAll()
-      for (const key in allUUID) {
-        if (allUUID[key] === uuid) {
-          await service.cache.hashRemoveUUID(key)
+      if (id) {
+        await service.users.updateLogoutAction(Date.now(), id)
+        const allUUID = await service.cache.hashGETUUIDAll()
+        for (const key in allUUID) {
+          if (allUUID[key] === uuid) {
+            await service.cache.hashRemoveUUID(key)
+          }
         }
+        logger.info(
+          uuid,
+          'UUID',
+          await service.cache.hashGETUUIDAll(),
+          'out remain socket退出'
+        )
       }
-      logger.info(
-        uuid,
-        'UUID',
-        await service.cache.hashGETUUIDAll(),
-        'out remain socket退出'
-      )
-    })
+    }, 10000)[Symbol.toPrimitive]()
+    await service.cache.set(uuid, timeoutID)
   }
 }

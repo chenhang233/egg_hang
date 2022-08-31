@@ -8,9 +8,8 @@ class NspController extends Controller {
     const socket = ctx.socket
     const client = socket.id
     try {
-      const { target, payload } = message
-      if (!target) return
-      const msg = ctx.helper.parseMsg('exchange', payload, { client, target })
+      const { payload } = message
+      const msg = ctx.helper.parseMsg('exchange', payload, { client })
       // nsp.emit(target, msg)
       nsp.adapter.clients([tempRoom], (err, clients) => {
         // 发送信息

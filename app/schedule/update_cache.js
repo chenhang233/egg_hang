@@ -14,7 +14,7 @@ class UpdateCache extends Subscription {
   // subscribe 是真正定时任务执行时被运行的函数
   async subscribe() {
     const length = await this.service.cache.hashGETUUIDALL_length()
-    this.logger.info('当前hash内存的登录数量', length)
+    this.logger.info('当前内存的登录数量', length)
   }
 }
 
