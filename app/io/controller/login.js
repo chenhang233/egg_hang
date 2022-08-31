@@ -15,6 +15,7 @@ class DefaultController extends Controller {
       const msg = ctx.helper.parseMsg('pinging', payload, { client })
       nsp.adapter.clients([loginRoom], (err, clients) => {
         nsp.to(client).emit('message', msg)
+        nsp.to(loginRoom).emit('message', msg)
       })
     } catch (error) {
       app.logger.error(error)

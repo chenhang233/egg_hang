@@ -8,6 +8,7 @@ module.exports = () => {
     const { room, uuid } = query
     const rooms = [room]
     socket.join(room)
+    socket.emit('res', 'connected!')
     // console.log(rooms, 'rooms', query, 'query', id, 'id')
     const timeId = await service.cache.get(uuid)
     if (timeId) {
@@ -16,13 +17,11 @@ module.exports = () => {
     }
     nsp.adapter.clients(rooms, (err, clients) => {
       nsp.to(id).emit('message', `初始连接成功--`)
-      nsp.to(id).emit('test', `初始连接成功--`)
       // nsp.to(id).send(1)
     })
     await next()
     // execute when disconnect.
     let timeoutID = setTimeout(async () => {
-      console.log('go settimeout')
       const infoArr = await service.sql.selectAll('logininfo')
       infoArr.sort((a, b) => b.id - a.id)
       const id = infoArr.find((obj) => obj.uuid === uuid)?.id
