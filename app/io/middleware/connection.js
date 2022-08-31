@@ -15,8 +15,14 @@ module.exports = () => {
       console.log(timeId, 'last timeId')
       clearTimeout(timeId)
     }
+    const { account } = await service.sql.selectByUUID('adminuser', uuid)
     nsp.adapter.clients(rooms, (err, clients) => {
-      nsp.to(id).emit('message', `初始连接成功--`)
+      const msg = helper.parseMsg(
+        'message',
+        { ...query, msg: `欢迎${account}登录` },
+        { clients }
+      )
+      nsp.to(id).emit('message', msg)
       // nsp.to(id).send(1)
     })
     await next()
