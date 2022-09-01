@@ -28,7 +28,7 @@ class AppBootHook {
     //   '登录者房间启动',
     //   await this.app.redis.get(`${RoomPREFIX}:${loginRoom}`)
     // )
-    // await this.app.redis.flushall()
+    await this.app.redis.flushall()
   }
 
   async didReady() {}

@@ -169,9 +169,15 @@ class IndexController extends Controller {
     userinfo.username = userinfo.account
     if (userinfo.avatar && !/^http/.test(userinfo.avatar)) {
       try {
-        const res = fs.readFileSync(userinfo.avatar, 'binary')
-        userinfo.avatar = res
-      } catch {
+        const res = fs.readFileSync(userinfo.avatar, 'base64')
+        // const fileRender = new FileReader()
+        // fileRender.readAsBinaryString(res)
+        // fileRender.onload((e) => {
+        //   console.log(e.result)
+        // })
+        userinfo.avatar = 'data:image/jpeg;base64,' + res
+      } catch (e) {
+        console.dir(e)
         userinfo.avatar = null
       }
     }
@@ -212,31 +218,25 @@ class IndexController extends Controller {
   }
   async uploadAvatar() {
     const ctx = this.ctx
+    if (!ctx.request.files) return (ctx.body = error(201))
     const avatarFile = ctx.request.files[0]
-    if (!avatarFile) return (ctx.body = error(201))
-    const token = this.ctx.headers.authorization.substring(7)
-    const UUID = await ctx.service.cache.hashGetUUID(token)
-    const adminuser = await ctx.service.sql.selectByUUID('adminuser', UUID)
-    if (!adminuser) return (ctx.body = error(207))
+    const token = ctx.headers.authorization.substring(7)
+    let UUID = null
+    UUID = await ctx.service.cache.hashGetUUID(token)
+    if (!UUID) UUID = await ctx.service.cache.hashGetUUID(token)
+    const adminuser = await ctx.service.sql.selectByUUID('adminuserinfo', UUID)
     const p = path.join(__dirname + '../../../uploads/') + Date.now()
-    const read = new FileReader()
-    read.readAsDataURL(avatarFile)
-    read.onload = async (e) => {
-      fs.writeFileSync(p, e.target.result)
-      const updateObj = {
-        uuid: UUID,
-        avatar: p,
-      }
-      if (fs.readFileSync(adminuser.avatar)) {
-        fs.unlinkSync(adminuser.avatar)
-      }
-      const myerr = await ctx.service.users.updateUserInfo(
-        'adminuserinfo',
-        updateObj
-      )
-      if (myerr) return (ctx.body = myerr)
-      ctx.body = success(200)
+    const file = fs.readFileSync(avatarFile.filepath)
+    fs.writeFileSync(p, file)
+    if (adminuser.avatar) {
+      fs.unlinkSync(adminuser.avatar)
     }
+    const updateObj = {
+      uuid: UUID,
+      avatar: p,
+    }
+    await ctx.service.users.updateUserInfo('adminuserinfo', updateObj)
+    ctx.body = success(200)
   }
 }
 

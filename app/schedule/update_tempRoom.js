@@ -10,11 +10,7 @@ class UpdateTempRoom extends Subscription {
     }
   }
 
-  async subscribe() {
-    await this.service.cache.set(`${RoomPREFIX}:${tempRoom}`, true)
-    const room = await this.service.cache.get(`${RoomPREFIX}:${tempRoom}`)
-    this.logger.info('当前 tempRoom 内存的情况 hall', room)
-  }
+  async subscribe() {}
 }
 
 module.exports = UpdateTempRoom

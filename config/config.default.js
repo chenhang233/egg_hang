@@ -73,6 +73,9 @@ module.exports = (appInfo) => {
   config.auth = {
     whiteurlList: ['/users/login', '/users/register', '/users/getToken'],
   }
+  config.multipart = {
+    mode: 'file',
+  }
   // add your user config here
   const userConfig = {
     // myAppName: 'egg',

@@ -22,8 +22,16 @@ module.exports = () => {
         { ...query, msg: `欢迎${account}登录` },
         { clients }
       )
+      const msg2 = helper.parseMsg(
+        'message',
+        { ...query, msg: `新消息` },
+        { clients }
+      )
       nsp.to(id).emit('message', msg)
       // nsp.to(id).send(1)
+      setTimeout(() => {
+        nsp.to(id).emit('message', msg2)
+      }, 5000)
     })
     await next()
     // execute when disconnect.
@@ -46,7 +54,7 @@ module.exports = () => {
           'out remain socket退出'
         )
       }
-    }, 10000)[Symbol.toPrimitive]()
+    }, 20000)[Symbol.toPrimitive]()
     await service.cache.set(uuid, timeoutID)
   }
 }
