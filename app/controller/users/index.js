@@ -157,7 +157,7 @@ class IndexController extends Controller {
   }
   async getUserInfo() {
     const ctx = this.ctx
-    const token = this.ctx.headers.authorization.substring(7)
+    const token = ctx.headers.authorization.substring(7)
     const UUID = await ctx.service.cache.hashGetUUID(token)
     const adminuser = await ctx.service.sql.selectByUUID('adminuser', UUID)
     if (!adminuser) return (ctx.body = error(207))
@@ -170,14 +170,8 @@ class IndexController extends Controller {
     if (userinfo.avatar && !/^http/.test(userinfo.avatar)) {
       try {
         const res = fs.readFileSync(userinfo.avatar, 'base64')
-        // const fileRender = new FileReader()
-        // fileRender.readAsBinaryString(res)
-        // fileRender.onload((e) => {
-        //   console.log(e.result)
-        // })
         userinfo.avatar = 'data:image/jpeg;base64,' + res
       } catch (e) {
-        console.dir(e)
         userinfo.avatar = null
       }
     }
@@ -190,25 +184,23 @@ class IndexController extends Controller {
   }
   async setUserInfo() {
     const ctx = this.ctx
-    const { id } = ctx.request.body
-    //   name,
-    //   sex,
-    //   phone,
-    //   address,
-    //   introduction,
-    //   avatar,
-    if (!id) return (ctx.body = error(201))
-    const adminuser = await ctx.service.sql.selectById('adminuser', id)
-    if (!adminuser) return (ctx.body = error(207))
+    const token = ctx.headers.authorization.substring(7)
+    const body = ctx.request.body
+    const uploadArr = ['sex', 'phone', 'address', 'introduction', 'nickname']
+    if (!body.uuid) return (ctx.body = error(201))
+    const {
+      details: {
+        info: { uuid },
+      },
+    } = ctx.service.users.verifyToken(token)
+    if (uuid !== body.uuid) return (ctx.body = error(513))
     const updateObj = {}
-    for (const key in ctx.request.body) {
-      if (ctx.request.body[key]) {
-        updateObj[key] = ctx.request.body[key]
+    for (const key in body) {
+      if (uploadArr.includes(key)) {
+        updateObj[key] = body[key]
       }
     }
-    updateObj.uuid = adminuser.uuid
-    delete updateObj.id
-    if (updateObj.avatar) return (ctx.body = error(506))
+    updateObj.uuid = body.uuid
     const err = await ctx.service.users.updateUserInfo(
       'adminuserinfo',
       updateObj
@@ -221,16 +213,23 @@ class IndexController extends Controller {
     if (!ctx.request.files) return (ctx.body = error(201))
     const avatarFile = ctx.request.files[0]
     const token = ctx.headers.authorization.substring(7)
-    let UUID = null
-    UUID = await ctx.service.cache.hashGetUUID(token)
-    if (!UUID) UUID = await ctx.service.cache.hashGetUUID(token)
+    let UUID = await ctx.service.cache.hashGetUUID(token)
     const adminuser = await ctx.service.sql.selectByUUID('adminuserinfo', UUID)
     const p = path.join(__dirname + '../../../uploads/') + Date.now()
     const file = fs.readFileSync(avatarFile.filepath)
-    fs.writeFileSync(p, file)
-    if (adminuser.avatar) {
-      fs.unlinkSync(adminuser.avatar)
+    const prevRedis = await ctx.service.cache.hashGETUUIDAll()
+    try {
+      fs.writeFileSync(p, file)
+      if (adminuser.avatar && fs.readFileSync(adminuser.avatar)) {
+        fs.unlink(adminuser.avatar, (err) => {})
+      }
+    } catch {}
+    console.log(prevRedis, 'prevRedis')
+    for (let k in prevRedis) {
+      await ctx.service.cache.hashSetUUID(k, prevRedis[k])
     }
+    const afterRedis = await ctx.service.cache.hashGETUUIDAll()
+    console.log(afterRedis, 'afterRedis')
     const updateObj = {
       uuid: UUID,
       avatar: p,
