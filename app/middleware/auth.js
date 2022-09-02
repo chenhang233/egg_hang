@@ -9,8 +9,6 @@ const { admin } = require('../../config/config.static')
 module.exports = (options) => {
   const { whiteurlList } = options
   return async function (ctx, next) {
-    const all = await ctx.service.cache.hashGETUUIDAll()
-    console.log(all, 'all')
     const interfaceAll = await ctx.service.sql.selectAll('adminuserinterface')
     const authInterfaceArr = interfaceAll
       .filter((obj) => !whiteurlList.includes(obj.url))

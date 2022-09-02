@@ -1,5 +1,6 @@
 const { Service } = require('egg')
 const { error } = require('../utils')
+const fs = require('fs')
 
 class UsersService extends Service {
   setToken(info) {
@@ -58,6 +59,13 @@ class UsersService extends Service {
   // }
   async cannotKeys() {
     return ['id', 'roleId', 'routerId', 'routerFnId', 'interfaceId']
+  }
+  async getBASE64Image(path) {
+    let base64 = null
+    try {
+      base64 = 'data:image/jpeg;base64,' + fs.readFileSync(path, 'base64')
+    } catch (e) {}
+    return base64
   }
 }
 

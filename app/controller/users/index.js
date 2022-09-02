@@ -168,12 +168,7 @@ class IndexController extends Controller {
     const userinfo = { ...adminuser, ...adminuserinfo }
     userinfo.username = userinfo.account
     if (userinfo.avatar && !/^http/.test(userinfo.avatar)) {
-      try {
-        const res = fs.readFileSync(userinfo.avatar, 'base64')
-        userinfo.avatar = 'data:image/jpeg;base64,' + res
-      } catch (e) {
-        userinfo.avatar = null
-      }
+      userinfo.avatar = await this.service.users.getBASE64Image(userinfo.avatar)
     }
     delete userinfo.account
     const cannotKeys = ['id', 'roleId', 'routerId', 'routerFnId', 'interfaceId']

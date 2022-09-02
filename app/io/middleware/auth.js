@@ -1,36 +1,21 @@
 module.exports = () => {
   return async (ctx, next) => {
     const { app, socket, logger, helper, service } = ctx
-    const id = socket.id
+    // const id = socket.id
     const nsp = app.io.of('/forum')
     const query = socket.handshake.query
     // 用户信息
-    const { room, userId } = query
+    const { room, uuid } = query
     const rooms = [room]
-    logger.info('#user_info', id, room, userId)
-    // const hasRoom = await service.cache.get(`${RoomPREFIX}:${room}`)
-    // logger.info('#has_exist', hasRoom)
-
-    // if (!hasRoom) {
-    //   tick(socket, nsp, id, {
-    //     type: 'deleted',
-    //     message: '房间没创建',
-    //   })
-    //   return
-    // }
-    // 用户加入
-    logger.info('#join', room)
     socket.join(room)
-    // 在线列表
+    const { account } = await service.sql.selectByUUID('adminuser', uuid)
     nsp.adapter.clients(rooms, (err, clients) => {
-      logger.info('#online_join', clients)
-
       // 更新在线用户列表
       nsp.to(room).emit('online', {
         clients,
         action: 'join',
         target: 'participator',
-        message: `User(${id}) joined.`,
+        message: `用户(${account}) 加入.`,
       })
     })
 
@@ -41,8 +26,6 @@ module.exports = () => {
 
     // 在线列表
     nsp.adapter.clients(rooms, (err, clients) => {
-      logger.info('#online_leave', clients)
-
       // 获取 client 信息
       // const clientsDetail = {};
       // clients.forEach(client => {
@@ -56,7 +39,7 @@ module.exports = () => {
         clients,
         action: 'leave',
         target: 'participator',
-        message: `User(${id}) leaved.`,
+        message: `用户(${account}) 离开.`,
       })
     })
   }
