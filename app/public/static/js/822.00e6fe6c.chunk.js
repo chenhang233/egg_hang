@@ -1,2 +1,0 @@
-"use strict";(self.webpackChunkegg_frontend=self.webpackChunkegg_frontend||[]).push([[822],{838:function(e,n,r){r.r(n);var t=r(184);n.default=function(){return(0,t.jsx)("div",{children:"\u6ca1\u914d\u7f6e"})}}}]);
-//# sourceMappingURL=822.00e6fe6c.chunk.js.map

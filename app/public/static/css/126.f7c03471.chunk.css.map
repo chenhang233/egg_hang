@@ -1,1 +1,0 @@
-{"version":3,"file":"static/css/126.f7c03471.chunk.css","mappings":"AAEI,uCACE","sources":["pages/Index/pages/RoleManage/index.module.scss"],"sourcesContent":[".root {\r\n  :global {\r\n    .roleAddButton {\r\n      margin-bottom: 20px;\r\n    }\r\n  }\r\n}\r\n"],"names":[],"sourceRoot":""}

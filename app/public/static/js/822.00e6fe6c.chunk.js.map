@@ -1,1 +1,0 @@
-{"version":3,"file":"static/js/822.00e6fe6c.chunk.js","mappings":"oIAIA,UAJuB,WACrB,OAAO,+CACR,C","sources":["pages/Index/pages/OutletNotFound/index.tsx"],"sourcesContent":["const OutletNotFound = () => {\r\n  return <div>没配置</div>\r\n}\r\n\r\nexport default OutletNotFound\r\n"],"names":[],"sourceRoot":""}
