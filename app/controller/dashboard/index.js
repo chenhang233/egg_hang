@@ -1,6 +1,9 @@
 const { Controller } = require('egg')
 const { success, error } = require('../../utils')
-
+const {
+  DynamicApacheDataJson,
+  DynamicApacheTableJson,
+} = require('../../utils/constants')
 class DashboardController extends Controller {
   async index() {
     const { ctx } = this
@@ -41,6 +44,16 @@ class DashboardController extends Controller {
       return (ctx.body = success(200, result.data.data))
     }
     ctx.body = error(505)
+  }
+  async getDynamicApacheDataJson() {
+    const ctx = this.ctx
+
+    return (ctx.body = success(200, DynamicApacheDataJson))
+  }
+  async getDynamicApacheTableJson() {
+    const ctx = this.ctx
+
+    return (ctx.body = success(200, DynamicApacheTableJson))
   }
 }
 

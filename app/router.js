@@ -18,6 +18,14 @@ module.exports = (app) => {
     controller.dashboard.index.getvisitNumbers
   )
   router.get('/dashboard/getWebStudy', controller.dashboard.index.getWebStudy)
+  router.get(
+    '/dashboard/getDynamicApacheDataJson',
+    controller.dashboard.index.getDynamicApacheDataJson
+  )
+  router.get(
+    '/dashboard/getDynamicApacheTableJson',
+    controller.dashboard.index.getDynamicApacheTableJson
+  )
   router.post('/users/register', controller.users.index.register)
   router.post('/users/login', controller.users.index.login)
   router.post('/users/logout', controller.users.index.logout)
