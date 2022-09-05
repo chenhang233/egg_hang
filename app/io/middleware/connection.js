@@ -10,6 +10,17 @@ module.exports = () => {
     socket.join(room)
     socket.emit('res', 'connected!')
     // console.log(rooms, 'rooms', query, 'query', id, 'id')
+    if (!uuid) {
+      nsp.adapter.clients(rooms, (err, clients) => {
+        const msg = helper.parseMsg(
+          'error',
+          { ...query, msg: `uuid不存在` },
+          { clients }
+        )
+        nsp.to(id).emit('message', msg)
+      })
+      return
+    }
     const timeId = await service.cache.get(uuid)
     if (timeId) {
       console.log(timeId, 'last timeId')

@@ -29,6 +29,7 @@
     "node": ">=16.0.0"
   },
   "scripts": {
+    "build": "jx package app.js egg_hang",
     "scripts:start": "node scripts/start --sticky",
     "start": "egg-scripts start --daemon --title=egg-server-egg_hang --sticky",
     "stop": "egg-scripts stop --title=egg-server-egg_hang",
