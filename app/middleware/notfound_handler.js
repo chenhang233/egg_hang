@@ -9,7 +9,7 @@ module.exports = () => {
       console.log('中间件执行, 404')
 
       if (ctx.acceptJSON) {
-        ctx.body = error(509)
+        ctx.body = error(514)
       } else {
         ctx.response.type = 'html'
         ctx.body = fs.readFileSync(

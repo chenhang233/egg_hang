@@ -12,6 +12,11 @@ module.exports = (app) => {
   io.of('/login').route('pinging', io.controller.login.pinging)
   // 前端
   router.get('/', controller.home.ReactIndex)
+  // 测试
+  router.get(
+    '/test/getLoginRecordInfo',
+    controller.test.index.getLoginRecordInfo
+  )
   // 接口
   router.get(
     '/dashboard/visitNumbers',

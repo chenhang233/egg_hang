@@ -1999,7 +1999,7 @@ const DynamicApacheDataJson = [
   },
 ]
 const DynamicApacheTableJson = [
-  ['Income', 'Life Expectancy', 'Population', 'Country', 'Year'],
+  ['收入', '寿命预期', '人口', '国家', '年份'],
   [815, 34.05, 351014, 'Australia', 1800],
   [1314, 39, 645526, 'Canada', 1800],
   [985, 32, 321675013, 'China', 1800],

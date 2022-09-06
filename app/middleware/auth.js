@@ -14,6 +14,8 @@ module.exports = (options) => {
       .filter((obj) => !whiteurlList.includes(obj.url))
       .map((obj) => obj.url)
     const url = ctx.url
+    console.log(ctx.ip, ctx.ips, 'ip', url, 'url')
+
     // if (!authInterfaceArr.includes(url)) {
     //   return await next()
     // }
@@ -21,7 +23,8 @@ module.exports = (options) => {
       !authInterfaceArr.includes(url) ||
       /^\/public/.test(url) ||
       /^\/static/.test(url) ||
-      /^\/view/.test(url)
+      /^\/view/.test(url) ||
+      /^\/test/.test(url)
     ) {
       return await next()
     }
@@ -29,7 +32,6 @@ module.exports = (options) => {
     if (!token) return (ctx.body = error(215))
     if (!token.startsWith('Bearer ')) return (ctx.body = error(209))
     token = token.substring(7)
-    console.log(ctx.ip, ctx.ips, 'ip', url, 'url')
     const { username, details } = ctx.service.users.verifyToken(token)
     console.log('中间件执行,auth')
     if (details && details.Refresh) return (ctx.body = error(215))

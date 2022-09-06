@@ -22,6 +22,10 @@ class SqlService extends Service {
     const data = this.app.mysql.get(table, { id })
     return data
   }
+  async selectByPage(table, { limit, offset }) {
+    const data = this.app.mysql.select(table, { limit, offset })
+    return data
+  }
   async selectByUUIDFindUsername(uuid) {
     const data = await this.app.mysql.get('adminuser', {
       uuid,

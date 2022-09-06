@@ -13,6 +13,6 @@ child.stdout.on('data', (data) => {
   console.log(`standard output: ${data}`)
 })
 
-child.stderr.on('data', (data) => {
+child.stderr.on('error', (data) => {
   console.error(`stderr: ${data}`)
 })
