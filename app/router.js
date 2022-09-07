@@ -17,7 +17,8 @@ module.exports = (app) => {
     '/test/getLoginRecordInfo',
     controller.test.index.getLoginRecordInfo
   )
-  // 接口
+  router.post('/test/getHttpContext', controller.test.index.getHttpContext)
+  // auth接口
   router.get(
     '/dashboard/visitNumbers',
     controller.dashboard.index.getvisitNumbers

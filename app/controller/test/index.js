@@ -2,6 +2,11 @@ const { Controller } = require('egg')
 const { success, error } = require('../../utils')
 
 class TestController extends Controller {
+  async getHttpContext() {
+    const { ctx } = this
+    const { data } = ctx.request.body
+    ctx.body = success(200, { data })
+  }
   async getLoginRecordInfo() {
     const { ctx } = this
     const { pageSize, pageNumber } = ctx.query
