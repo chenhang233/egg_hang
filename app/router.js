@@ -32,6 +32,7 @@ module.exports = (app) => {
     '/dashboard/getDynamicApacheTableJson',
     controller.dashboard.index.getDynamicApacheTableJson
   )
+  router.get('/users/getSvgCaptcha', controller.users.index.getSvgCaptcha)
   router.post('/users/register', controller.users.index.register)
   router.post('/users/login', controller.users.index.login)
   router.post('/users/logout', controller.users.index.logout)

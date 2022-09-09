@@ -219,18 +219,23 @@ class IndexController extends Controller {
         fs.unlink(adminuser.avatar, (err) => {})
       }
     } catch {}
-    console.log(prevRedis, 'prevRedis')
     for (let k in prevRedis) {
       await ctx.service.cache.hashSetUUID(k, prevRedis[k])
     }
-    const afterRedis = await ctx.service.cache.hashGETUUIDAll()
-    console.log(afterRedis, 'afterRedis')
     const updateObj = {
       uuid: UUID,
       avatar: p,
     }
     await ctx.service.users.updateUserInfo('adminuserinfo', updateObj)
     ctx.body = success(200)
+  }
+  async getSvgCaptcha() {
+    const ctx = this.ctx
+    let captcha = await this.service.users.getCaptcha()
+    console.log(captcha.text, 'captcha svg')
+    ctx.cookies.code = captcha.text
+    ctx.response.type = 'image/svg+xml'
+    ctx.body = success(200, { data: captcha.data })
   }
 }
 

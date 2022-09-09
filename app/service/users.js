@@ -1,7 +1,7 @@
 const { Service } = require('egg')
 const { error } = require('../utils')
 const fs = require('fs')
-
+const svgCaptcha = require('svg-captcha')
 class UsersService extends Service {
   setToken(info) {
     const token = this.app.jwt.sign({ info }, this.app.config.jwt.secret, {
@@ -66,6 +66,16 @@ class UsersService extends Service {
       base64 = 'data:image/jpeg;base64,' + fs.readFileSync(path, 'base64')
     } catch (e) {}
     return base64
+  }
+  async getCaptcha() {
+    const captcha = svgCaptcha.create({
+      size: 4,
+      fontSize: 50,
+      width: 100,
+      height: 40,
+      background: '#cc9966',
+    })
+    return captcha
   }
 }
 
