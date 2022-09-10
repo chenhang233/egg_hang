@@ -231,11 +231,72 @@ class IndexController extends Controller {
   }
   async getSvgCaptcha() {
     const ctx = this.ctx
-    let captcha = await this.service.users.getCaptcha()
-    console.log(captcha.text, 'captcha svg')
-    ctx.cookies.code = captcha.text
+    let { text, data: SVG } = await this.service.users.getCaptcha()
+    const Returnobj = {
+      rect: {
+        fill: null,
+      },
+      path: [],
+    }
+    const matchRect = /<rect/
+    const matchEnd = /\/>/
+    const matchPath = /<path/
+    const matchEnd2 = /<\/svg>/
+    const matchStroke = /stroke/
+    const matchFill = /fill/
+    const { index } = matchRect.exec(SVG)
+    const { index: index2 } = matchEnd.exec(SVG)
+    const { index: index3 } = matchPath.exec(SVG)
+    // console.log(index, ' matchRect.exec(SGV)')
+    const rectStr = SVG.slice(index, index2 + 2)
+    const { index: index4 } = matchFill.exec(rectStr)
+    Returnobj.rect.fill = rectStr
+      .slice(index4, index4 + 14)
+      .split('=')[1]
+      .split('"')[1]
+    const pathSVG = SVG.slice(index3).replace(matchEnd2, '')
+    const keywords = ['d', 'stroke', 'fill']
+    const pathArr = pathSVG.split('<path')
+    if (!pathArr[0]) pathArr.shift()
+    const pathArr2 = pathArr.map((str) => {
+      const strArr = str.split('=')
+      strArr.forEach((v, i) => {
+        keywords.forEach((s) => {
+          if (v.endsWith(s) && !matchStroke.test(v)) {
+            strArr[i] = strArr[i].split(' ')
+          } else if (v.endsWith(s) && matchStroke.test(v)) {
+            strArr[i] = strArr[i].split('"')
+            strArr[i][2] && (strArr[i][2] = strArr[i][2].trim())
+          }
+        })
+        if (i === strArr.length - 1)
+          strArr[i] = [strArr[i].replace(matchEnd, '')]
+        if (!strArr[i][0]) strArr[i].shift()
+      })
+      return strArr
+    })
+    pathArr2.forEach((outarr) => {
+      outarr.forEach((arr, i) => {
+        if (keywords.includes(arr[arr.length - 1]) && arr.length > 1) {
+          outarr[i - 1].push(arr[0])
+          arr.shift()
+        } else if (arr.length === 1 && i > 0) {
+          outarr[i - 1].push(arr[0].split('"')[1])
+          outarr.pop()
+        }
+      })
+    })
+    pathArr2.forEach((outarr) => {
+      const obj = {}
+      outarr.forEach((innerArr) => {
+        obj[innerArr[0]] = innerArr[1]
+      })
+      Returnobj.path.push(obj)
+    })
+    console.log(text, 'captcha svg')
+    ctx.cookies.CaptchaCode = text
     ctx.response.type = 'image/svg+xml'
-    ctx.body = success(200, { data: captcha.data })
+    ctx.body = success(200, { data: Returnobj })
   }
 }
 
