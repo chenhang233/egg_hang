@@ -41,10 +41,12 @@ class IndexController extends Controller {
   }
   async login() {
     const ctx = this.ctx
-    const { username, password } = ctx.request.body
-    if (!username || !password) {
+    const { username, password, captcha } = ctx.request.body
+    if (!username || !password || !captcha) {
       return (ctx.body = error(204))
     }
+    console.log(ctx.session, 'session')
+    console.log(ctx.cookies.get('code'))
     const prevData = await ctx.service.sql.selectByName('adminuser', username)
     if (!prevData) return (ctx.body = error(204))
     if (prevData.password !== password) return (ctx.body = error(204))
@@ -294,9 +296,12 @@ class IndexController extends Controller {
       Returnobj.path.push(obj)
     })
     console.log(text, 'captcha svg')
-    ctx.cookies.CaptchaCode = text
+    ctx.cookies.set('code', text, {
+      maxAge: 1000 * 3600 * 24, //cookie存储一天     设置过期时间后关闭浏览器重新打开cookie还存在
+      domain: 'http://localhost:3000',
+    })
     ctx.response.type = 'image/svg+xml'
-    ctx.body = success(200, { data: Returnobj })
+    ctx.body = success(200, Returnobj)
   }
 }
 
