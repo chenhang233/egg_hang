@@ -239,6 +239,7 @@ class IndexController extends Controller {
         fill: null,
       },
       path: [],
+      text: null,
     }
     const matchRect = /<rect/
     const matchEnd = /\/>/
@@ -295,11 +296,7 @@ class IndexController extends Controller {
       })
       Returnobj.path.push(obj)
     })
-    console.log(text, 'captcha svg')
-    ctx.cookies.set('code', text, {
-      maxAge: 1000 * 3600 * 24, //cookie存储一天     设置过期时间后关闭浏览器重新打开cookie还存在
-      domain: 'http://localhost:3000',
-    })
+    Returnobj.text = text
     ctx.response.type = 'image/svg+xml'
     ctx.body = success(200, Returnobj)
   }

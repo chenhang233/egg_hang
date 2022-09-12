@@ -56,13 +56,18 @@ module.exports = (appInfo) => {
     xframe: {
       enable: false,
     },
-    // domainWhiteList: ['*'],
+    domainWhiteList: ['*'],
   }
   // cors 跨域
   config.cors = {
     allowMethods: 'GET,HEAD,PUT,POST,DELETE,PATCH,OPTIONS',
-    credentials: true,
+    credentials: true, // 该属性允许cookie跨域
     origin: '*', // 允许的请求来源（* 表示允许所有的IP的请求 ）
+  }
+  config.cookies = {
+    httpOnly: true,
+    sameSite: 'None',
+    // secure: true,
   }
   // token
   config.jwt = {
@@ -79,8 +84,6 @@ module.exports = (appInfo) => {
   config.session = {
     key: 'EGG_SESS',
     maxAge: 24 * 3600 * 1000, // 1 天
-    httpOnly: true,
-    encrypt: true,
   }
   // add your user config here
   const userConfig = {
