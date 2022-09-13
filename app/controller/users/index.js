@@ -299,6 +299,7 @@ class IndexController extends Controller {
     Returnobj.text = text
     ctx.response.type = 'image/svg+xml'
     ctx.body = success(200, Returnobj)
+    ctx.cookies.set('code', text)
   }
 }
 
